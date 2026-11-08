@@ -8,4 +8,6 @@
 - `OpenGame/` — полный исходный код фреймворка OpenGame (включая `agent-test/debug-skill/` и `agent-test/docs/`).
 - `обновление-кода/` — выделенная папка для будущих обновлений, патчей и доработок кода.
 
-Дополнительно в корне сохранён исходный резервный архив `Arrakis_workspace_backup.zip`.
+Дополнительно в корне сохранены:
+- `index.html` и `.nojekyll` — точка входа для GitHub Pages (`https://erlan56region.github.io/Dune3/`), открывающая версию `html-игры/arrakis-remaster/index.html` (`REMASTER`);
+- `Arrakis_workspace_backup.zip` — исходный резервный архив.
