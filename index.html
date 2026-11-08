@@ -30,8 +30,16 @@ header{border-color:#52634a80}.brand-logo{color:#f2edd9;text-shadow:0 0 25px #d2
 .map-title,.map-tools button,.zoom-level,.army-btn{background:#101b17e8;border-color:#bacb9d55}.briefing-card{background:linear-gradient(145deg,#26392ef9,#101c17f9);border-color:#d1bb7777;box-shadow:0 18px 60px #0009}.briefing-card h2{color:#f4e9c9}.primary{background:linear-gradient(110deg,#dfb65e,#f0d397);box-shadow:0 5px 20px #c4a45d20}.production-card:hover{transform:translateY(-2px);border-color:#d4b66c;box-shadow:0 5px 16px #0005}.command:hover{transform:translateY(-2px)}
 .tactical-controls{display:flex;gap:5px;align-items:center}.tactical-controls button{white-space:nowrap;background:#1a2920;border:1px solid #546b4c;color:#d8dfc6;border-radius:3px;padding:7px 9px;font:9px var(--mono);letter-spacing:.3px}.tactical-controls button:hover{border-color:var(--gold);color:var(--gold)}.tactical-controls button:disabled{opacity:.4}.tactical-controls .speed{color:var(--gold)}
 .remaster-tag{color:var(--gold);font:8px var(--mono);letter-spacing:1.6px;margin-left:8px;white-space:nowrap}
+.command{min-width:50px}
+.palace-hud{position:absolute;right:16px;top:56px;z-index:3;display:flex;flex-direction:column;gap:5px;align-items:flex-end}
+.palace-hud[hidden],.weather-pill[hidden]{display:none}
+.palace-hud button{background:#19231ae8;border:1px solid #c9a75f99;color:#f1dfb1;border-radius:3px;padding:6px 10px;font:9px var(--mono);display:flex;align-items:center;gap:8px;box-shadow:0 3px 12px #0004;backdrop-filter:blur(8px)}
+.palace-hud button:hover:not(:disabled){border-color:#f2d488;background:#2a3524}
+.palace-hud button span{color:var(--green);font-size:8px}
+.palace-hud button.active{border-color:#f2d488;background:#3a351fe8}
+.weather-pill{background:#2d2116e8;border:1px solid #e0a76199;color:#f5cfa0;border-radius:3px;padding:6px 10px;font:9px var(--mono);letter-spacing:.8px;backdrop-filter:blur(8px)}
 @media(max-width:900px){.remaster-tag{display:none}.tactical-controls button{padding:6px;font-size:8px}.header-right{gap:4px}}
-@media(max-width:620px){.tactical-controls{position:absolute;right:10px;top:67px;z-index:5}.tactical-controls button{background:#17241deF;font-size:8px}.mission-heading{padding-top:45px}.tactical-controls .speed{min-width:39px}.briefing-card{max-height:calc(100% - 100px);overflow:auto}}
+@media(max-width:620px){.tactical-controls{position:absolute;right:10px;top:67px;z-index:5}.tactical-controls button{background:#17241deF;font-size:8px}.mission-heading{padding-top:45px}.tactical-controls .speed{min-width:39px}.briefing-card{max-height:calc(100% - 100px);overflow:auto}.command{min-width:30px;width:30px}.palace-hud{right:10px;top:44px}.palace-hud button{padding:4px 7px;font-size:8px}}
 @media(prefers-reduced-motion:reduce){.production-card:hover,.command:hover{transform:none}}
 </style>
 </head>
@@ -58,11 +66,12 @@ header{border-color:#52634a80}.brand-logo{color:#f2edd9;text-shadow:0 0 25px #d2
 <symbol id="i-wrench" viewBox="0 0 24 24"><path d="M14 3a6 6 0 0 0-6 8L2 17a3 3 0 0 0 5 5l7-8a6 6 0 0 0 7-8l-4 4-4-4 3-3Z"/></symbol>
 <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
 <symbol id="i-mouse" viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="6"/><path d="M12 2v7M6 9h12"/></symbol>
+<symbol id="i-scatter" viewBox="0 0 24 24"><path d="M9 9 4 4m0 0h4M4 4v4m11 1 5-5m0 0h-4m4 0v4M9 15l-5 5m0 0h4m-4 0v-4m11-1 5 5m0 0h-4m4 0v-4"/></symbol>
 </defs></svg>
 <div class="app">
 <header>
 <div class="brand"><div class="brand-logo">DUNE<b> II</b></div><span class="remaster-tag">REMASTER / 2026</span><div class="brand-note">THE BATTLE FOR ARRAKIS<br>REMASTER CONCEPT</div></div>
-<nav aria-label="Навигация"><button class="active" id="battleNav">Поле боя</button><button id="archiveNav">Арсенал <span class="nav-count">22</span></button><button id="helpNav">Инструктаж</button></nav>
+<nav aria-label="Навигация"><button class="active" id="battleNav">Поле боя</button><button id="archiveNav">Арсенал <span class="nav-count" id="archiveCount">31</span></button><button id="helpNav">Инструктаж</button></nav>
 <div class="header-right"><div class="tactical-controls"><button id="saveGame" title="Сохранить операцию в браузере">СОХРАНИТЬ</button><button id="loadGame" title="Загрузить сохранённую операцию">ЗАГРУЗИТЬ</button><button id="speedGame" class="speed" title="Скорость игры">1×</button></div><div class="online"><span class="dot"></span> СВЯЗЬ УСТАНОВЛЕНА</div><button class="icon-btn" id="musicBtn" title="Включить музыку" aria-label="Включить музыку" aria-pressed="false">♫</button><button class="icon-btn" id="soundBtn" title="Включить звук" aria-label="Включить звук"><svg><use href="#i-mute"/></svg></button><button class="icon-btn" id="pauseBtn" title="Пауза — пробел" aria-label="Пауза"><svg><use href="#i-pause"/></svg></button></div>
 </header>
 <section class="mission-heading">
@@ -78,12 +87,13 @@ header{border-color:#52634a80}.brand-logo{color:#f2edd9;text-shadow:0 0 25px #d2
 <div class="workspace">
 <div class="battlefield" id="battlefield">
 <canvas id="gameCanvas" aria-label="Интерактивное поле боя Арракиса"></canvas>
-<div class="map-top"><div class="map-title"><strong><span class="dot"></span> ТАКТИЧЕСКАЯ КАРТА</strong><small>АРРАКИН · СЕКТОР 07 · 26° N / 62° E</small></div><div class="map-tools"><button class="icon-btn" id="zoomOut" title="Отдалить"><svg><use href="#i-minus"/></svg></button><span class="zoom-level" id="zoomValue">100%</span><button class="icon-btn" id="zoomIn" title="Приблизить"><svg><use href="#i-plus"/></svg></button><button class="icon-btn" id="resetCamera" title="Обзор сектора"><svg><use href="#i-home"/></svg></button></div></div>
+<div class="map-top"><div class="map-title"><strong><span class="dot"></span> ТАКТИЧЕСКАЯ КАРТА</strong><small>АРРАКИН · СЕКТОР 07 · 26° N / 62° E</small></div><div class="weather-pill" id="weatherPill" hidden></div><div class="map-tools"><button class="icon-btn" id="zoomOut" title="Отдалить"><svg><use href="#i-minus"/></svg></button><span class="zoom-level" id="zoomValue">100%</span><button class="icon-btn" id="zoomIn" title="Приблизить"><svg><use href="#i-plus"/></svg></button><button class="icon-btn" id="resetCamera" title="Обзор сектора"><svg><use href="#i-home"/></svg></button></div></div>
+<div class="palace-hud" id="palaceHud" hidden><button id="abilityThumper" title="Установить сейсмический манок (Z): вызывает червя в точку">Манок червя <span id="thumperCd">ГОТОВ</span></button><button id="abilityFremen" title="Сбросить отряд Фрименов и Снайпера в точку (F)">Зов Фрименов <span id="fremenCd">ГОТОВ</span></button></div>
 <div class="placement-banner" id="placementBanner"></div>
 <div class="briefing-card" id="briefing">
 <div class="eyebrow">ВАШ ПЕРВЫЙ ПРИКАЗ</div><h2>Спайс должен<br>течь.</h2>
 <p>Император передал Арракин Атрейдесам, но Харконнены не собираются уступать пряность. Ментат сообщает: враг укрепляет базу и строит армию. Наладьте добычу, развивайте технологии и лишите его командования.</p>
-<label for="missionSelect" style="display:block;color:#d7b770;font-size:10px;margin:12px 0 5px">ВЫБЕРИТЕ ОПЕРАЦИЮ</label><select id="missionSelect" style="width:100%;background:#252b21;color:#eee;border:1px solid #747c5b;padding:8px;margin-bottom:10px"><option value="campaign">Кампания Атрейдесов · 9 миссий</option><option value="conquest">Битва за Арракин</option><option value="economy">Поставка Гильдии</option><option value="defense">Оборона рубежа</option></select><p id="missionDescription" style="font-size:10px;line-height:1.4"></p><button class="primary" id="startBtn">Начать операцию <svg><use href="#i-arrow"/></svg></button>
+<label for="missionSelect" style="display:block;color:#d7b770;font-size:10px;margin:12px 0 5px">ВЫБЕРИТЕ ОПЕРАЦИЮ</label><select id="missionSelect" style="width:100%;background:#252b21;color:#eee;border:1px solid #747c5b;padding:8px;margin-bottom:10px"><option value="campaign">Кампания Атрейдесов · 9 миссий</option><option value="conquest">Битва за Арракин</option><option value="economy">Поставка Гильдии</option><option value="defense">Оборона рубежа</option><option value="survival">Песчаный шторм · Выживание</option></select><p id="missionDescription" style="font-size:10px;line-height:1.4"></p><button class="primary" id="startBtn">Начать операцию <svg><use href="#i-arrow"/></svg></button>
 <div class="briefing-foot"><span>ГЛАВА 01 · БОРЬБА ЗА СПАЙС</span><span>ОДИНОЧНАЯ МИССИЯ</span></div>
 </div>
 <div id="campaignTransition" style="display:none;position:absolute;z-index:12;inset:0;background:#11170feF;align-items:center;justify-content:center;text-align:center;padding:24px"><div><div class="eyebrow">МИССИЯ ВЫПОЛНЕНА</div><h2 id="transitionTitle" style="color:#d7b770"></h2><p id="transitionText" style="max-width:420px;line-height:1.6"></p><p id="transitionTimer" style="color:#aabb86"></p><button id="makeRoom" class="primary" style="display:none;margin:auto">Вернуться и освободить место</button></div></div><div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -93,7 +103,7 @@ header{border-color:#52634a80}.brand-logo{color:#f2edd9;text-shadow:0 0 25px #d2
 <div class="selection-bar">
 <img class="selection-art" id="selectionArt" alt="Выбранное подразделение">
 <div class="selected-info"><div class="eyebrow" id="selectionType">АТРЕЙДЕСЫ · БРОНЕТЕХНИКА</div><div class="selected-name" id="selectionName">Боевой танк</div><div class="health-row"><div class="health-bar"><i id="healthFill" style="width:100%"></i></div><span class="health-text" id="healthText">320 / 320</span></div></div>
-<div class="command-list"><button class="command" data-command="move" title="Двигаться (M)"><kbd>M</kbd><svg><use href="#i-move"/></svg>Двигаться</button><button class="command" data-command="attack" title="Атаковать (A)"><kbd>A</kbd><svg><use href="#i-target"/></svg>Атака</button><button class="command" data-command="guard" title="Остановиться и охранять (G)"><kbd>G</kbd><svg><use href="#i-shield"/></svg>Охранять</button><button class="command" data-command="repair" id="repairCommand" title="Ремонт за кредиты (R)"><kbd>R</kbd><svg><use href="#i-wrench"/></svg>Ремонт</button></div>
+<div class="command-list"><button class="command" data-command="move" title="Двигаться (M)"><kbd>M</kbd><svg><use href="#i-move"/></svg>Двигаться</button><button class="command" data-command="attack" title="Атаковать (A)"><kbd>A</kbd><svg><use href="#i-target"/></svg>Атака</button><button class="command" data-command="guard" title="Остановиться и охранять (G)"><kbd>G</kbd><svg><use href="#i-shield"/></svg>Охранять</button><button class="command" data-command="repair" id="repairCommand" title="Ремонт за кредиты (R)"><kbd>R</kbd><svg><use href="#i-wrench"/></svg>Ремонт</button><button class="command" data-command="scatter" title="Рассредоточить отряд (X)"><kbd>X</kbd><svg><use href="#i-scatter"/></svg>Разброс</button></div>
 <div class="selection-status" id="selectionStatus">Ожидает приказа.<br>Все системы в норме.</div>
 </div>
 </div>
@@ -111,9 +121,9 @@ header{border-color:#52634a80}.brand-logo{color:#f2edd9;text-shadow:0 0 25px #d2
 <footer class="footer"><span>НЕОФИЦИАЛЬНЫЙ ИГРОВОЙ КОНЦЕПТ · REMASTER <span class="slash">/</span> ВДОХНОВЛЕНО DUNE II, 1992</span><span><kbd>SPACE</kbd> ТАКТИЧЕСКАЯ ПАУЗА</span><span><span class="dot"></span> АРРАКИС ЖДЁТ ВАШЕГО ПРИКАЗА</span></footer>
 </div>
 <div class="overlay" id="archiveOverlay" role="dialog" aria-modal="true" aria-labelledby="archiveTitle">
-<div class="modal"><div class="modal-header"><div><div class="eyebrow">ПОЛЕВОЙ СПРАВОЧНИК / 22 ЕДИНИЦЫ</div><h2 id="archiveTitle">Арсенал Арракиса</h2></div><button class="icon-btn close-modal" aria-label="Закрыть"><svg><use href="#i-close"/></svg></button></div><div class="archive-filters" id="archiveFilters"><button class="filter active" data-filter="all">Все</button><button class="filter" data-filter="infantry">Пехота</button><button class="filter" data-filter="vehicle">Техника</button><button class="filter" data-filter="air">Авиация</button><button class="filter" data-filter="nature">Арракис</button></div><div class="archive-body"><div class="archive-grid" id="archiveGrid"></div><div class="archive-detail" id="archiveDetail"></div></div><div class="modal-foot">Авторская RTS-интерпретация: баланс и часть механик упрощены. Графика нарисована процедурно, без оригинальных спрайтов.</div></div>
+<div class="modal"><div class="modal-header"><div><div class="eyebrow" id="archiveEyebrow">ПОЛЕВОЙ СПРАВОЧНИК / 31 ЕДИНИЦА</div><h2 id="archiveTitle">Арсенал Арракиса</h2></div><button class="icon-btn close-modal" aria-label="Закрыть"><svg><use href="#i-close"/></svg></button></div><div class="archive-filters" id="archiveFilters"><button class="filter active" data-filter="all">Все</button><button class="filter" data-filter="infantry">Пехота</button><button class="filter" data-filter="vehicle">Техника</button><button class="filter" data-filter="air">Авиация</button><button class="filter" data-filter="nature">Арракис</button></div><div class="archive-body"><div class="archive-grid" id="archiveGrid"></div><div class="archive-detail" id="archiveDetail"></div></div><div class="modal-foot">Авторская RTS-интерпретация: типы брони, ветеранство, захват зданий, спецспособности Дворца, спайсовые гейзеры и песчаные бури.</div></div>
 </div>
-<div class="overlay" id="helpOverlay" role="dialog" aria-modal="true" aria-labelledby="helpTitle"><div class="modal help-modal"><div class="modal-header"><div><div class="eyebrow">НАСТАВЛЕНИЕ КОМАНДИРУ</div><h2 id="helpTitle">Выжить. Добыть. Победить.</h2></div><button class="icon-btn close-modal" aria-label="Закрыть"><svg><use href="#i-close"/></svg></button></div><div class="help-body"><p class="help-intro">Фримены и контрабандисты помогают Атрейдесам автоматически и не занимают лимит войск. Вражеские базы появляются из песка за 12 секунд и до появления недоступны для атаки. В кампании Атрейдесов выполните указанную квоту или уничтожьте все силы противника; следующая миссия начнётся автоматически. В отдельных операциях пройдите первые два этапа: переработайте 500 спайса и постройте радар и космопорт. Затем выполните цели выбранной операции, указанные справа. Потеря всех строительных дворов означает поражение.</p><div class="help-grid"><div class="help-block"><h3>01 / Управляйте</h3><p>Кнопка ♫ включает музыку, а тема выбирается в панели домов. Звук эффектов включается отдельно. Нажмите на свой юнит или выделите отряд рамкой. ПКМ отдаёт приказ. На телефоне: касание юнита, затем точки назначения или врага. Shift добавляет юнита к отряду.</p></div><div class="help-block"><h3>02 / Добывайте</h3><p>Харвестеры автоматически собирают оранжевый спайс и отвозят его на завод. Дополнительный комбайн ускорит экономику. Кэрриол рядом ускоряет их движение.</p></div><div class="help-block"><h3>03 / Стройте</h3><p>Закажите войска справа. Постройки размещайте рядом со своим строительным двором. Ветроловки дают энергию, турели защищают базу. Вкладка «Улучшения» усиливает армию, добычу и производство за кредиты. Добывать можно на разных месторождениях — выберите харвестер и отдайте приказ на поле спайса. Рынок CHOAM доступен после постройки космопорта: купленная техника прибывает через 20 секунд. Ремонтная станция бесплатно восстанавливает технику рядом. Ветроловка открывает завод спайса и казармы; завод спайса — завод техники; завод техники — радар; радар открывает турели и передовые юниты. При потере необходимых зданий производство останавливается. При дефиците энергии оно замедляется.</p></div><div class="help-block"><h3>04 / Будьте начеку</h3><p>Харконнены добывают спайс, строят базу и производят войска. Уничтожайте их заводы, чтобы остановить подкрепления. Сейсмическое кольцо предупреждает о черве: отведите технику! Ремонт восстанавливает 12 HP в секунду за 3 кредита.</p></div></div><div class="help-keys">Q — вся армия · M — движение · A — атака · G — стоп<br>R — ремонт / развёртывание MCV · 1 — пехота · 2 — танк · 3 — харвестер<br>Пробел — пауза · Esc — отмена · Стрелки — камера при увеличении<br>Мини-карта — перемещение камеры · + / − — масштаб<br>Ctrl + 4–9 — сохранить группу · 4–9 — выбрать группу<br>Кнопки сверху — сохранение, загрузка и скорость игры</div></div></div></div>
+<div class="overlay" id="helpOverlay" role="dialog" aria-modal="true" aria-labelledby="helpTitle"><div class="modal help-modal"><div class="modal-header"><div><div class="eyebrow">НАСТАВЛЕНИЕ КОМАНДИРУ</div><h2 id="helpTitle">Выжить. Добыть. Победить.</h2></div><button class="icon-btn close-modal" aria-label="Закрыть"><svg><use href="#i-close"/></svg></button></div><div class="help-body"><p class="help-intro">Фримены и контрабандисты помогают Атрейдесам автоматически и не занимают лимит войск. Каждый дом применяет свою тактику: Ордосы используют рейдеров, саботажников и девиаторы, Харконнены — огнемётные танки и девастаторы, Император — сардукар и бомбардировщики. Развивайте армию до Дворца, прокачивайте ветеранство отрядов (★–★★★) и используйте особенности пустыни.</p><div class="help-grid"><div class="help-block"><h3>01 / Типы урона и контры</h3><p>Пехота и огнемётные танки эффективны против пехоты и построек, танки пробивают тяжёлую броню, но не бьют по воздуху. Против авиации используйте Зенитные танки «Шторм», ракетчиков и ракетные турели. Боевые отряды накапливают опыт и получают до 3 звёзд ветеранства (урон, броня и автолечение).</p></div><div class="help-block"><h3>02 / Инженер и спецтехника</h3><p>Инженер захватывает повреждённые (&lt;60% HP) вражеские здания или подрывает целые, а свои чинит. Ремонтный БТР автоматически восстанавливает технику и пехоту вокруг. Танк «Мираж» скрыт маскировкой до выстрела. Гравитанк «Зефир» не боится песчаного червя.</p></div><div class="help-block"><h3>03 / Дворец и экономика</h3><p>Хранилище спайса даёт +15% прибыли от добычи (до +45%). На карте появляются спайсовые гейзеры — взорвите или наедьте на них для создания нового месторождения. Дворец открывает «Манок червя» (Z — призывает Шай-Хулуда в любую точку) и «Зов Фрименов» (F).</p></div><div class="help-block"><h3>04 / Пустыня и бури</h3><p>Песчаная буря накрывает полосу сектора, замедляя авиацию и повреждая открытую пехоту. При появлении сейсмического кольца червя или залпа бомбардировщика нажмите X (Разброс), чтобы быстро рассредоточить отряд.</p></div></div><div class="help-keys">Q — вся армия · M — движение · A — атака · G — охрана · X — разброс<br>R — ремонт / развёртывание MCV · Z — манок червя · F — зов Фрименов<br>1 — пехота · 2 — танк · 3 — харвестер · Пробел — пауза · Esc — отмена<br>Ctrl + 4–9 — сохранить группу · 4–9 — выбрать группу · Стрелки / + / − — камера</div></div></div></div>
 <div class="overlay" id="resultOverlay" role="dialog" aria-modal="true" aria-labelledby="resultTitle"><div class="modal result-modal"><div class="result-sigil"><svg><use href="#i-eagle"/></svg></div><div class="eyebrow" id="resultEyebrow">ОПЕРАЦИЯ ЗАВЕРШЕНА</div><h2 id="resultTitle">Арракис — наш.</h2><p id="resultText"></p><div class="result-stats"><div><strong id="resultScore">0</strong><small>ОЧКИ</small></div><div><strong id="resultKills">0</strong><small>ЦЕЛИ</small></div><div><strong id="resultTime">00:00</strong><small>ВРЕМЯ</small></div></div><button class="primary" id="playAgain">Новая операция <svg><use href="#i-arrow"/></svg></button><div class="result-record" id="resultRecord"></div></div></div>
 <script>
 'use strict';
@@ -123,46 +133,66 @@ const timeFmt=s=>String(Math.floor(s/60)).padStart(2,'0')+':'+String(Math.floor(
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
 const dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
 const svgIcon=n=>'<svg><use href="#i-'+n+'"/></svg>';
+const ARMOR_MULT={
+bullet:{infantry:1.45,light:.85,heavy:.45,air:.7,building:.65},
+shell:{infantry:.6,light:1.05,heavy:1.3,air:.5,building:1.15},
+rocket:{infantry:.65,light:1.15,heavy:1.25,air:1.45,building:1.25},
+flame:{infantry:1.65,light:1.0,heavy:.65,air:0,building:1.4},
+sonic:{infantry:1.2,light:1.15,heavy:1.1,air:0,building:1.1},
+flak:{infantry:.7,light:.8,heavy:.45,air:1.9,building:.4},
+laser:{infantry:1.15,light:1.15,heavy:1.2,air:.85,building:1.05},
+explosive:{infantry:1.1,light:1.1,heavy:1.0,air:.5,building:1.4}
+};
 const UNIT={
-soldier:{name:'Пехотинец',en:'Light Infantry',group:'infantry',hp:65,speed:55,damage:7,range:130,rate:.85,price:60,time:3,house:'Все дома',role:'Разведка и поддержка',desc:'Одиночный солдат с лёгким оружием. Дёшев, быстро обучается и эффективен против другой пехоты.'},
-infantry:{name:'Отряд пехоты',en:'Infantry Squad',group:'infantry',hp:140,speed:48,damage:14,range:140,rate:1,price:110,time:4,house:'Все дома',role:'Линейная пехота',desc:'Несколько бойцов в одной боевой единице. Хорошая поддержка бронетехники, но не замена танкам.'},
-trooper:{name:'Ракетчик',en:'Rocket Trooper',group:'infantry',hp:85,speed:45,damage:28,range:215,rate:1.9,price:120,time:4,house:'Все дома',role:'Противотанковая пехота',desc:'Переносная ракетная установка пробивает броню на большой дистанции. Нуждается в защите от быстрых машин.'},
-troopers:{name:'Отряд ракетчиков',en:'Heavy Troopers',group:'infantry',hp:180,speed:40,damage:42,range:225,rate:2,price:200,time:5,house:'Все дома',role:'Тяжёлая пехота',desc:'Согласованный ракетный залп делает этот отряд опасным для техники и стационарных укреплений.'},
-fremen:{name:'Фримены',en:'Fremen',group:'infantry',hp:230,speed:68,damage:32,range:180,rate:1.2,price:280,time:6,house:'Атрейдесы',role:'Элитные бойцы пустыни',desc:'Коренные жители Арракиса. В оригинале вызываются через Дворец; в этой операции доступны как элитный отряд.'},
-sardaukar:{name:'Сардукары',en:'Sardaukar',group:'infantry',hp:260,speed:52,damage:32,range:190,rate:1.3,price:300,time:6,house:'Коррино',locked:true,role:'Императорская гвардия',desc:'Элитные солдаты Императора. Противник кампании; не входят в производственный состав Атрейдесов.'},
-trike:{name:'Трайк',en:'Trike',group:'vehicle',hp:135,speed:120,damage:11,range:150,rate:.65,price:140,time:4,house:'Атрейдесы · Харконнены',role:'Быстрая разведка',desc:'Трёхколёсная разведывательная машина. Высокая скорость позволяет обходить позиции и перехватывать пехоту.'},
-raider:{name:'Рейдер',en:'Raider Trike',group:'vehicle',hp:145,speed:145,damage:13,range:155,rate:.65,price:170,time:4,house:'Ордосы',locked:true,role:'Скоростной рейдер',desc:'Улучшенный трайк дома Ордосов. Создан для внезапных атак и преследования отступающих отрядов.'},
-quad:{name:'Квад',en:'Quad',group:'vehicle',hp:195,speed:99,damage:17,range:170,rate:.9,price:180,time:4,house:'Все дома',role:'Лёгкая боевая машина',desc:'Четырёхколёсная машина с парными орудиями. Быстрее танка, но заметно уступает ему по защите.'},
-tank:{name:'Боевой танк',en:'Combat Tank',group:'vehicle',hp:320,speed:62,damage:38,range:200,rate:1.4,price:300,time:6,house:'Все дома',role:'Основная бронетехника',desc:'Надёжная основа армии. Сбалансированные броня, дальность и огневая мощь подходят для наступления и обороны.'},
-siege:{name:'Осадный танк',en:'Siege Tank',group:'vehicle',hp:460,speed:43,damage:65,range:230,rate:1.9,price:480,time:8,house:'Все дома',role:'Тяжёлая бронетехника',desc:'Мощная двухствольная машина. Медленно передвигается, но хорошо справляется с укреплениями и тяжёлыми целями.'},
-launcher:{name:'Ракетная установка',en:'Rocket Launcher',group:'vehicle',hp:210,speed:48,damage:62,range:330,rate:2.5,price:450,time:7,house:'Атрейдесы · Харконнены',role:'Дальнобойная артиллерия',desc:'Наносит удар из-за линии фронта. Самая большая дальность среди обычной техники компенсируется слабой бронёй.'},
-sonic:{name:'Соник-танк',en:'Sonic Tank',group:'vehicle',hp:360,speed:54,damage:57,range:235,rate:1.8,price:600,time:9,house:'Атрейдесы',role:'Акустическое оружие',desc:'Фирменное оружие Атрейдесов. В этой версии звуковой импульс наносит урон цели и ближайшим врагам, не задевая союзников.'},
-devastator:{name:'Девастатор',en:'Devastator',group:'vehicle',hp:700,speed:32,damage:90,range:185,rate:2,price:700,time:11,house:'Харконнены',locked:true,role:'Сверхтяжёлый танк',desc:'Огромная броня и разрушительная мощь. Уничтоженный реактор взрывается, повреждая ближайших противников.'},
-deviator:{name:'Девиатор',en:'Deviator',group:'vehicle',hp:280,speed:54,damage:15,range:250,rate:2.5,price:650,time:10,house:'Ордосы',locked:true,role:'Химическое оружие',desc:'Специальная машина Ордосов. В Dune II временно переманивает вражескую технику. Здесь представлена в справочнике.'},
-saboteur:{name:'Саботажник',en:'Saboteur',group:'infantry',hp:70,speed:85,damage:600,range:30,rate:1,price:300,time:5,house:'Ордосы',locked:true,role:'Диверсант',desc:'Специалист по уничтожению зданий, вызываемый Дворцом Ордосов. Достигает цели и подрывает заложенный заряд.'},
-harvester:{name:'Харвестер',en:'Harvester',group:'vehicle',hp:440,speed:60,damage:0,range:0,price:450,time:8,house:'Все дома',role:'Добыча спайса',desc:'Автоматически добывает спайс и возвращается на очистительный завод. Вместимость — 250 единиц. Безоружен: держите охрану рядом.'},
-mcv:{name:'Мобильная база',en:'Mobile Construction Vehicle',group:'vehicle',hp:550,speed:39,damage:0,range:0,price:750,time:10,house:'Все дома',role:'Развёртывание базы',desc:'Переместите машину в нужное место и нажмите R. Она развернётся в новый строительный двор и расширит зону строительства.'},
-carryall:{name:'Кэрриол',en:'Carryall',group:'air',hp:320,speed:120,damage:0,range:0,price:500,time:8,house:'Все дома',role:'Транспорт поддержки',desc:'В этой операции сопровождает ближайший харвестер и ускоряет его движение в 1,65 раза в радиусе 260 метров.'},
-ornithopter:{name:'Орнитоптер',en:'Ornithopter',group:'air',hp:190,speed:138,damage:27,range:220,rate:1.1,price:500,time:8,house:'Атрейдесы · Ордосы',role:'Ударная авиация',desc:'Быстрый летательный аппарат с машущими крыльями. В этой версии управляется напрямую и поддерживает наземные отряды.'},
-emperor:{name:'Императорский командный танк',en:'Imperial Command Tank',group:'vehicle',hp:2200,speed:25,damage:105,range:260,rate:2.2,price:0,house:'Коррино',locked:true,role:'Главнокомандующий Императора',desc:'Авторский финальный босс: тяжёлая командная машина Императора. Уничтожьте её вместе с остальными силами.'},
-frigate:{name:'Фрегат',en:'CHOAM Frigate',group:'air',hp:1200,speed:80,damage:0,range:0,price:0,house:'Гильдия',locked:true,role:'Межпланетная доставка',desc:'Грузовое судно доставляет заказанную через Космопорт технику. Служебная авиация оригинальной игры, не боевая единица.'},
-worm:{name:'Песчаный червь',en:'Sandworm · Shai-Hulud',group:'nature',hp:2000,speed:70,damage:190,range:70,price:0,house:'Арракис',locked:true,role:'Хозяин пустыни',desc:'Реагирует на вибрации песка. Пульсирующее кольцо предупреждает о выходе червя за семь секунд. Уведите отряды из опасной зоны.'}
+soldier:{name:'Пехотинец',en:'Light Infantry',group:'infantry',hp:65,speed:55,damage:7,range:130,rate:.85,price:60,time:3,house:'Все дома',armor:'infantry',dmgType:'bullet',role:'Разведка и поддержка',desc:'Одиночный солдат с лёгким оружием. Дёшев, быстро обучается и эффективен против другой пехоты.'},
+infantry:{name:'Отряд пехоты',en:'Infantry Squad',group:'infantry',hp:140,speed:48,damage:14,range:140,rate:1,price:110,time:4,house:'Все дома',armor:'infantry',dmgType:'bullet',role:'Линейная пехота',desc:'Несколько бойцов в одной боевой единице. Хорошая поддержка бронетехники, но не замена танкам.'},
+trooper:{name:'Ракетчик',en:'Rocket Trooper',group:'infantry',hp:85,speed:45,damage:28,range:215,rate:1.9,price:120,time:4,house:'Все дома',armor:'infantry',dmgType:'rocket',antiAir:true,role:'Противотанковая и ПВО пехота',desc:'Переносная ракетная установка пробивает броню и сбивает авиацию на большой дистанции.'},
+troopers:{name:'Отряд ракетчиков',en:'Heavy Troopers',group:'infantry',hp:180,speed:40,damage:42,range:225,rate:2,price:200,time:5,house:'Все дома',armor:'infantry',dmgType:'rocket',antiAir:true,role:'Тяжёлая пехота / ПВО',desc:'Согласованный ракетный залп делает этот отряд опасным для техники, укреплений и орнитоптеров.'},
+sniper:{name:'Снайпер',en:'Desert Sniper',group:'infantry',hp:90,speed:56,damage:72,range:305,rate:2.3,price:210,time:5,house:'Атрейдесы · Фримены',armor:'infantry',dmgType:'bullet',role:'Снайпер дальнего боя',desc:'Мастер дальней стрельбы по пехоте и диверсантам. Снимает пехоту и саботажников с огромной дистанции.'},
+engineer:{name:'Инженер',en:'Combat Engineer',group:'infantry',hp:110,speed:58,damage:260,range:40,rate:1,price:240,time:5,house:'Все дома',armor:'infantry',dmgType:'explosive',capture:true,role:'Захват и ремонт зданий',desc:'Захватывает повреждённые (<60% HP) вражеские постройки, подрывает целые на 260 урона и чинит свои здания (+320 HP).'},
+fremen:{name:'Фримены',en:'Fremen',group:'infantry',hp:230,speed:68,damage:32,range:185,rate:1.2,price:280,time:6,house:'Атрейдесы',armor:'infantry',dmgType:'bullet',antiAir:true,role:'Элитные бойцы пустыни',desc:'Коренные жители Арракиса. Быстры, стойки, могут быть вызваны в тыл врага через Дворец (F).'},
+sardaukar:{name:'Сардукары',en:'Sardaukar',group:'infantry',hp:260,speed:52,damage:32,range:190,rate:1.3,price:300,time:6,house:'Коррино',locked:true,armor:'infantry',dmgType:'bullet',antiAir:true,role:'Императорская гвардия',desc:'Элитные солдаты Императора. Участвуют в кампаниях на стороне дома Коррино.'},
+trike:{name:'Трайк',en:'Trike',group:'vehicle',hp:135,speed:120,damage:11,range:150,rate:.65,price:140,time:4,house:'Атрейдесы · Харконнены',armor:'light',dmgType:'bullet',role:'Быстрая разведка',desc:'Трёхколёсная разведывательная машина. Высокая скорость позволяет обходить позиции и перехватывать пехоту.'},
+raider:{name:'Рейдер',en:'Raider Trike',group:'vehicle',hp:145,speed:145,damage:13,range:155,rate:.65,price:170,time:4,house:'Ордосы',locked:true,armor:'light',dmgType:'bullet',role:'Скоростной рейдер',desc:'Улучшенный трайк дома Ордосов. Создан для внезапных атак и преследования отступающих отрядов.'},
+quad:{name:'Квад',en:'Quad',group:'vehicle',hp:195,speed:99,damage:17,range:170,rate:.9,price:180,time:4,house:'Все дома',armor:'light',dmgType:'bullet',antiAir:true,role:'Лёгкая боевая машина',desc:'Четырёхколёсная машина с парными орудиями. Эффективна против лёгких целей и отпугивает авиацию.'},
+tank:{name:'Боевой танк',en:'Combat Tank',group:'vehicle',hp:320,speed:62,damage:38,range:200,rate:1.4,price:300,time:6,house:'Все дома',armor:'heavy',dmgType:'shell',role:'Основная бронетехника',desc:'Надёжная основа армии. Бронебойный снаряд отлично работает против техники, но не стреляет по воздуху.'},
+flametank:{name:'Огнемётный танк',en:'Flame Tank',group:'vehicle',hp:335,speed:66,damage:28,range:150,rate:.85,price:380,time:7,house:'Атрейдесы · Харконнены',armor:'heavy',dmgType:'flame',splash:44,burn:4.5,role:'Выжигание и штурм',desc:'Бронированная огнемётная машина. Бьёт по площади и поджигает пехоту и здания на 4,5 секунды.'},
+aatank:{name:'Зенитный танк «Шторм»',en:'Storm AA Tank',group:'vehicle',hp:260,speed:78,damage:34,range:300,rate:.7,price:340,time:6,house:'Все дома',armor:'light',dmgType:'flak',antiAir:true,role:'Мобильная ПВО',desc:'Специализированная зенитная установка. Разрывает орнитоптеры и бомбардировщики шквальным огнём.'},
+repairapc:{name:'Ремонтный БТР',en:'Repair APC',group:'vehicle',hp:315,speed:74,damage:10,range:140,rate:1.1,price:320,time:6,house:'Все дома',armor:'light',dmgType:'bullet',healRadius:160,healRate:22,role:'Полевая поддержка',desc:'Мобильная мастерская: бесплатно ремонтирует технику и лечит пехоту рядом в радиусе 160 м.'},
+siege:{name:'Осадный танк',en:'Siege Tank',group:'vehicle',hp:460,speed:43,damage:65,range:230,rate:1.9,price:480,time:8,house:'Все дома',armor:'heavy',dmgType:'shell',splash:28,role:'Тяжёлая бронетехника',desc:'Мощная двухствольная машина. Медленно передвигается, но сокрушает укрепления и тяжёлые цели.'},
+launcher:{name:'Ракетная установка',en:'Rocket Launcher',group:'vehicle',hp:210,speed:48,damage:62,range:330,rate:2.5,price:450,time:7,house:'Атрейдесы · Харконнены',armor:'light',dmgType:'rocket',antiAir:true,splash:32,role:'Дальнобойная артиллерия',desc:'Наносит ракетный удар с дальней дистанции по земле и воздуху. Слабая броня требует прикрытия.'},
+sonic:{name:'Соник-танк',en:'Sonic Tank',group:'vehicle',hp:360,speed:54,damage:57,range:235,rate:1.8,price:600,time:9,house:'Атрейдесы',armor:'heavy',dmgType:'sonic',role:'Акустическое оружие',desc:'Фирменное оружие Атрейдесов. Звуковой импульс наносит урон цели и ближайшим врагам, не задевая союзников.'},
+stealth:{name:'Танк «Мираж»',en:'Stealth Tank',group:'vehicle',hp:270,speed:86,damage:54,range:235,rate:1.5,price:520,time:8,house:'Атрейдесы · Ордосы',armor:'light',dmgType:'laser',cloaked:true,role:'Скрытная засада',desc:'Поле маскировки делает танк невидимым для врага до момента выстрела или сближения с радаром.'},
+hovertank:{name:'Гравитанк «Зефир»',en:'Zephyr Hovertank',group:'vehicle',hp:380,speed:88,damage:48,range:225,rate:1.25,price:560,time:9,house:'Атрейдесы',armor:'heavy',dmgType:'laser',hover:true,role:'Антигравитационный танк',desc:'Парит над песками на гравиподушке. Быстр, вооружён плазменным лазером и неуязвим для песчаного червя.'},
+devastator:{name:'Девастатор',en:'Devastator',group:'vehicle',hp:700,speed:32,damage:90,range:185,rate:2,price:700,time:11,house:'Харконнены',locked:true,armor:'heavy',dmgType:'shell',splash:30,role:'Сверхтяжёлый танк',desc:'Огромная броня и разрушительная мощь. Уничтоженный реактор взрывается, повреждая ближайших противников.'},
+deviator:{name:'Девиатор',en:'Deviator',group:'vehicle',hp:280,speed:54,damage:18,range:255,rate:2.8,price:650,time:10,house:'Ордосы',locked:true,armor:'light',dmgType:'rocket',role:'Химическое оружие',desc:'Специальная машина Ордосов: нейротоксин временно переманивает вражескую технику на свою сторону на 9 секунд.'},
+saboteur:{name:'Саботажник',en:'Saboteur',group:'infantry',hp:85,speed:88,damage:450,range:35,rate:1,price:300,time:5,house:'Ордосы',locked:true,armor:'infantry',dmgType:'explosive',role:'Диверсант',desc:'Диверсант Ордосов. Прорывается к постройкам и подрывает заложенный заряд высокой мощности.'},
+harvester:{name:'Харвестер',en:'Harvester',group:'vehicle',hp:440,speed:60,damage:0,range:0,price:450,time:8,house:'Все дома',armor:'heavy',role:'Добыча спайса',desc:'Автоматически добывает спайс и отвозит его на завод. Хранилища увеличивают прибыль с каждого рейса.'},
+mcv:{name:'Мобильная база',en:'Mobile Construction Vehicle',group:'vehicle',hp:550,speed:39,damage:0,range:0,price:750,time:10,house:'Все дома',armor:'heavy',role:'Развёртывание базы',desc:'Переместите машину в нужное место и нажмите R. Она развернётся в новый строительный двор.'},
+carryall:{name:'Кэрриол',en:'Carryall',group:'air',hp:320,speed:120,damage:0,range:0,price:500,time:8,house:'Все дома',armor:'air',role:'Транспорт поддержки',desc:'Сопровождает ближайший харвестер и ускоряет его движение в 1,65 раза в радиусе 260 метров.'},
+ornithopter:{name:'Орнитоптер',en:'Ornithopter',group:'air',hp:190,speed:138,damage:27,range:220,rate:1.1,price:500,time:8,house:'Атрейдесы · Ордосы',armor:'air',dmgType:'rocket',antiAir:true,role:'Ударная авиация',desc:'Быстрый летательный аппарат с машущими крыльями. Перехватывает воздух и наносит ракетные удары по земле.'},
+bomber:{name:'Бомбардировщик «Орёл»',en:'Eagle Heavy Bomber',group:'air',hp:265,speed:122,damage:90,range:145,rate:3.3,price:680,time:10,house:'Атрейдесы · Коррино',armor:'air',dmgType:'explosive',splash:62,role:'Ковровая бомбардировка',desc:'Тяжёлый бомбардировщик: сбрасывает 3 осколочные бомбы по цели, сметая колонны и укрепления.'},
+emperor:{name:'Императорский командный танк',en:'Imperial Command Tank',group:'vehicle',hp:2200,speed:25,damage:105,range:260,rate:2.2,price:0,house:'Коррино',locked:true,armor:'heavy',dmgType:'shell',antiAir:true,splash:45,role:'Главнокомандующий Императора',desc:'Тяжёлая командная машина Императора. Уничтожьте её вместе с остальными силами для победы в кампании.'},
+frigate:{name:'Фрегат',en:'CHOAM Frigate',group:'air',hp:1200,speed:80,damage:0,range:0,price:0,house:'Гильдия',locked:true,armor:'air',role:'Межпланетная доставка',desc:'Грузовое судно Гильдии для доставки техники через Космопорт.'},
+worm:{name:'Песчаный червь',en:'Sandworm · Shai-Hulud',group:'nature',hp:2000,speed:70,damage:190,range:70,price:0,house:'Арракис',locked:true,armor:'heavy',role:'Хозяин пустыни',desc:'Реагирует на вибрации песка и манок Дворца. Гравитанки и авиация неуязвимы для атаки червя.'}
 };
 const BUILD={
 yard:{name:'Строительный двор',hp:2300,w:112,h:83,price:750,power:0,desc:'Главный командный центр'},
 wind:{name:'Ветроловка',hp:800,w:79,h:66,price:250,power:-100,desc:'+100 энергии'},
 refinery:{name:'Завод спайса',hp:1250,w:119,h:80,price:550,power:25,desc:'Переработка спайса + харвестер'},
+silo:{name:'Хранилище спайса',hp:620,w:66,h:56,price:200,power:10,desc:'+15% к доходу от спайса (до +45%)'},
 factory:{name:'Завод техники',hp:1100,w:105,h:83,price:450,power:35,desc:'Каждый завод ускоряет выпуск на 20%'},
-turret:{name:'Турель',hp:720,w:47,h:46,price:300,power:15,desc:'Автоматическая оборона'},
-barracks:{name:'Казармы',hp:650,w:78,h:60,price:220,power:10,desc:'Обучение пехоты'},
-radar:{name:'Радар',hp:650,w:66,h:59,price:300,power:20,desc:'+12 мест в армии'},
+turret:{name:'Турель',hp:720,w:47,h:46,price:300,power:15,desc:'Автоматическая оборона (земля)'},
+barracks:{name:'Казармы',hp:650,w:78,h:60,price:220,power:10,desc:'Обучение пехоты и инженеров'},
+radar:{name:'Радар',hp:650,w:66,h:59,price:300,power:20,desc:'+12 мест в армии и обнаружение скрытой техники'},
 starport:{name:'Космопорт',hp:1200,w:105,h:80,price:600,power:30,desc:'Открывает рынок CHOAM и доставку техники'},
 repairbay:{name:'Ремонтная станция',hp:900,w:85,h:68,price:400,power:20,desc:'Бесплатно ремонтирует ближайшую технику'},
-rocketTurret:{name:'Ракетная турель',hp:650,w:48,h:46,price:450,power:25,desc:'Дальнобойная оборона'}
+rocketTurret:{name:'Ракетная турель',hp:650,w:48,h:46,price:450,power:25,desc:'Дальнобойная оборона (земля и ПВО)'},
+palace:{name:'Дворец',hp:1900,w:122,h:90,price:1100,power:60,desc:'Открывает гравитанк, бомбардировщик, Манок (Z) и Зов Фрименов (F)'}
 };
 // Simplified technology tree shared by the player and the AI.
-const BUILD_REQ={wind:['yard'],refinery:['yard','wind'],barracks:['yard','wind'],factory:['yard','refinery'],radar:['yard','factory'],turret:['yard','radar'],starport:['yard','factory','radar'],repairbay:['yard','factory'],rocketTurret:['yard','radar','factory']};
-const UNIT_REQ={soldier:['barracks'],infantry:['barracks'],trooper:['barracks'],troopers:['barracks'],fremen:['barracks','radar'],trike:['factory'],quad:['factory'],tank:['factory'],siege:['factory','radar'],launcher:['factory','radar'],sonic:['factory','radar'],devastator:['factory','radar'],harvester:['factory','refinery'],mcv:['factory','radar'],carryall:['factory','radar'],ornithopter:['factory','radar']};
+const BUILD_REQ={wind:['yard'],refinery:['yard','wind'],silo:['yard','refinery'],barracks:['yard','wind'],factory:['yard','refinery'],radar:['yard','factory'],turret:['yard','radar'],starport:['yard','factory','radar'],repairbay:['yard','factory'],rocketTurret:['yard','radar','factory'],palace:['yard','factory','radar']};
+const UNIT_REQ={soldier:['barracks'],infantry:['barracks'],trooper:['barracks'],troopers:['barracks'],sniper:['barracks','radar'],engineer:['barracks'],fremen:['barracks','radar'],sardaukar:['barracks','radar'],saboteur:['barracks','radar'],trike:['factory'],raider:['factory'],quad:['factory'],tank:['factory'],flametank:['factory'],aatank:['factory','radar'],repairapc:['factory','refinery'],siege:['factory','radar'],launcher:['factory','radar'],sonic:['factory','radar'],stealth:['factory','radar'],hovertank:['factory','palace'],deviator:['factory','radar'],devastator:['factory','radar'],harvester:['factory','refinery'],mcv:['factory','radar'],carryall:['factory','radar'],ornithopter:['factory','radar'],bomber:['factory','palace']};
 function hasBuilding(owner,kind){return buildings.some(b=>b.owner===owner&&!b.dead&&b.build>=1&&(b.emerge??1)>=1&&b.kind===kind)}
 function missingTech(owner,kind,isBuilding=false){return ((isBuilding?BUILD_REQ:UNIT_REQ)[kind]||[]).filter(k=>!hasBuilding(owner,k))}
 function techMessage(missing){return 'Требуется: '+missing.map(k=>BUILD[k].name).join(', ')}
@@ -176,7 +206,9 @@ function line(c,x,y,x2,y2,col,width=1){c.beginPath();c.moveTo(x,y);c.lineTo(x2,y
 const WW=2400,WH=1500;
 const terrain=document.createElement('canvas');terrain.width=WW;terrain.height=WH;
 const tc=terrain.getContext('2d');
-const spicePatches=[{x:875,y:690,rx:140,ry:102},{x:1900,y:520,rx:145,ry:85},{x:1190,y:1100,rx:160,ry:100},{x:400,y:1250,rx:120,ry:95},{x:1550,y:220,rx:150,ry:100},{x:2120,y:1200,rx:160,ry:110},{x:1000,y:220,rx:110,ry:80}];
+const BASE_SPICE=[{x:875,y:690,rx:140,ry:102},{x:1900,y:520,rx:145,ry:85},{x:1190,y:1100,rx:160,ry:100},{x:400,y:1250,rx:120,ry:95},{x:1550,y:220,rx:150,ry:100},{x:2120,y:1200,rx:160,ry:110},{x:1000,y:220,rx:110,ry:80}];
+const spicePatches=BASE_SPICE;
+function allSpicePatches(){return BASE_SPICE.concat(G?.extraSpice||[])}
 function hash(x,y){let a=Math.sin(x*127.1+y*311.7)*43758.5453;return a-Math.floor(a)}
 function noise(x,y){let a=Math.floor(x),b=Math.floor(y),u=x-a,v=y-b;u=u*u*(3-2*u);v=v*v*(3-2*v);return (hash(a,b)*(1-u)+hash(a+1,b)*u)*(1-v)+(hash(a,b+1)*(1-u)+hash(a+1,b+1)*u)*v}
 function terrainHeight(x,y){const n=noise(x*.002,y*.002);return Math.sin(x*.016+y*.026+n*5)*(.45+noise(x*.004,y*.004)*.55)*11+noise(x*.012,y*.012)*8+noise(x*.04,y*.04)*2}
@@ -205,10 +237,12 @@ function drawUnit(c,u,t=0,icon=false){
 const d=UNIT[u.kind];if(!d)return;
 const green=u.owner===1?'#956a50':u.ally?'#649487':'#82916a',light=u.owner===1?'#c6986c':u.ally?'#b3d8c5':'#bdc29b',dark=u.owner===1?'#62493a':u.ally?'#426d66':'#4b5a40',accent=u.owner===1?'#db7159':u.ally?'#88e0d1':'#b9cc81';
 c.save();c.translate(u.x||0,u.y||0);if(u.kind==='emperor')c.scale(2,2);
+if(!icon&&d.cloaked&&(u.stealthTimer||0)<=0&&u.owner===0)c.globalAlpha=.44;
 if(d.group==='air'){
 const bob=icon?0:Math.sin(t*2+(u.id||0)) * 3;c.translate(0,bob);
 ellipse(c,13,25,26,9,'#302d2440');c.rotate(u.angle||-.3);
 if(u.kind==='frigate'){poly(c,[[-55,-13],[-28,-30],[38,-26],[62,0],[38,25],[-28,29],[-55,12]],'#666953','#b9b69a');rect(c,-30,-17,63,34,green);for(let i=-20;i<35;i+=12)rect(c,i,-15,7,30,'#91927a');rect(c,40,-9,10,18,'#283c37')}
+else if(u.kind==='bomber'){poly(c,[[-22,-6],[-16,-32],[12,-14],[31,0],[12,14],[-16,32],[-22,6]],dark,'#c8c5a2');poly(c,[[-14,-24],[6,-11],[18,0],[6,11],[-14,24],[-16,0]],green,light);rect(c,-20,-7,34,14,light);rect(c,-12,-4,18,8,'#3a4337');ellipse(c,16,0,7,4,'#38594f');rect(c,-4,-22,9,3,accent);rect(c,-4,19,9,3,accent);rect(c,-26,-9,5,18,'#4f5443')}
 else {const flap=icon?0:Math.sin(t*16)*6;poly(c,[[-16,-7],[-32,-33-flap],[-4,-25-flap],[19,-9],[28,0],[19,9],[-4,25+flap],[-32,33+flap],[-16,7]],dark,'#a1aa83');poly(c,[[-25,-28-flap],[-5,-21-flap],[10,-8],[-14,-10]],light);poly(c,[[-25,28+flap],[-5,21+flap],[10,8],[-14,10]],green);poly(c,[[-27,-5],[12,-8],[29,0],[12,8],[-27,5]],green,'#c6c8a6');rect(c,-22,-3,18,6,'#3d4539');ellipse(c,10,0,7,4,'#263e39');line(c,10,-3,16,-1,'#9dbdb0',1);if(u.kind==='carryall'){rect(c,-14,-8,23,16,'#a2a184');for(let i=-10;i<7;i+=6)line(c,i,-6,i,6,'#626950',2)}else{rect(c,0,-17,11,3,'#b7b39a');rect(c,0,14,11,3,'#b7b39a')} }
 c.restore();return;
 }
@@ -216,14 +250,30 @@ if(u.kind==='worm'){for(let i=5;i>=0;i--){ellipse(c,-i*8,Math.sin(i)*3,18-i,20-i
 c.rotate(u.angle||0);
 if(d.group==='infantry'){
 const squad=['infantry','troopers','fremen','sardaukar'].includes(u.kind)?3:1;
-for(let k=0;k<squad;k++){let dx=squad===1?0:k===0?7:-5,dy=squad===1?0:k===0?0:k===1?-9:9;ellipse(c,dx+3,dy+4,9,5,'#24291c55');rect(c,dx-7,dy-5,8,3,'#353e2f');rect(c,dx-7,dy+2,8,3,'#353e2f');ellipse(c,dx,dy,5,6,green);ellipse(c,dx+1,dy,3.5,3.5,u.kind==='fremen'?'#b2a384':light);rect(c,dx+3,dy-4,u.kind==='trooper'||u.kind==='troopers'?14:10,3,'#40473b');rect(c,dx-1,dy-5,4,2,accent);if(u.kind==='sardaukar')ellipse(c,dx,dy,3,3,'#b4b5a1')}
+for(let k=0;k<squad;k++){let dx=squad===1?0:k===0?7:-5,dy=squad===1?0:k===0?0:k===1?-9:9;ellipse(c,dx+3,dy+4,9,5,'#24291c55');rect(c,dx-7,dy-5,8,3,'#353e2f');rect(c,dx-7,dy+2,8,3,'#353e2f');ellipse(c,dx,dy,5,6,u.kind==='saboteur'?'#3b3533':u.kind==='sniper'?'#6b7352':green);ellipse(c,dx+1,dy,3.5,3.5,u.kind==='fremen'?'#b2a384':u.kind==='engineer'?'#e2c065':u.kind==='saboteur'?'#c96a54':light);rect(c,dx+3,dy-4,u.kind==='sniper'?17:u.kind==='trooper'||u.kind==='troopers'?14:u.kind==='engineer'||u.kind==='saboteur'?7:10,u.kind==='sniper'?2:3,'#40473b');rect(c,dx-1,dy-5,4,2,accent);if(u.kind==='sardaukar')ellipse(c,dx,dy,3,3,'#b4b5a1');if(u.kind==='sniper')ellipse(c,dx+7,dy-3,2,2,'#9ce8c5');if(u.kind==='engineer')rect(c,dx-5,dy-3,4,6,'#d88c42')}
 c.restore();return;
+}
+if(u.kind==='hovertank'){
+ellipse(c,0,3,26,16,'#62d6c833');
+poly(c,[[-20,-10],[10,-12],[23,-4],[23,4],[10,12],[-20,10]],dark,'#9ce4cf');
+poly(c,[[-15,-7],[8,-8],[18,0],[8,8],[-15,7]],green,light);
+ellipse(c,-12,-10,5,3,'#88efe3');ellipse(c,-12,10,5,3,'#88efe3');ellipse(c,10,-9,4,2.5,'#88efe3');ellipse(c,10,9,4,2.5,'#88efe3');
+c.save();c.rotate((u.turretAngle??u.angle??0)-(u.angle||0));
+poly(c,[[-7,-7],[8,-7],[12,0],[8,7],[-7,7]],light,'#9ce4cf');rect(c,6,-4,20,2,'#70efe0');rect(c,6,2,20,2,'#70efe0');
+c.restore();c.restore();return;
 }
 ellipse(c,5,7,u.kind==='harvester'?29:24,13,'#35352566');
 let w=32,h=23;if(['siege','devastator','emperor','mcv','harvester'].includes(u.kind)){w=43;h=31}
 if(['trike','raider','quad'].includes(u.kind)){
 for(let x of [-14,13])for(let y of [-11,11]){if(u.kind!=='quad'&&x===13){if(y===11)continue;y=0}rect(c,x-5,y-4,10,8,'#2e352a');rect(c,x-3,y-4,6,2,'#929176')}
 poly(c,[[-17,-9],[9,-9],[20,-3],[20,3],[9,9],[-17,9]],green,light);rect(c,-13,-5,12,10,dark);rect(c,-10,-4,7,8,'#343c32');ellipse(c,4,0,7,6,light);rect(c,3,-3,22,2,'#4b5343');rect(c,3,2,22,2,'#4b5343');rect(c,-15,-8,5,3,accent);
+}else if(u.kind==='stealth'){
+tracks(c,34,24);
+poly(c,[[-18,-10],[6,-11],[21,0],[6,11],[-18,10]],'#3a4640','#8cc5b5');
+poly(c,[[-12,-7],[5,-7],[14,0],[5,7],[-12,7]],dark,'#b8e7d6');
+c.save();c.rotate((u.turretAngle??u.angle??0)-(u.angle||0));
+poly(c,[[-6,-5],[7,-5],[11,0],[7,5],[-6,5]],'#61786c','#b8e7d6');rect(c,6,-1.5,19,3,'#9eead8');
+c.restore();rect(c,-15,-8,5,2,'#82ecdc');rect(c,-15,6,5,2,'#82ecdc');
 }else{
 tracks(c,w,h);
 poly(c,[[-w/2,-h/2+3],[w/2-4,-h/2+3],[w/2+3,-h/2+8],[w/2+3,h/2-7],[w/2-4,h/2-2],[-w/2,h/2-2]],green,light);
@@ -232,12 +282,16 @@ if(u.kind==='harvester'){
 rect(c,-18,-11,25,22,'#a79f73');for(let i=-15;i<5;i+=6){rect(c,i,-9,4,18,'#cdc08e');line(c,i+1,-9,i+1,9,'#ded2a855')};rect(c,7,-11,11,22,dark);rect(c,9,-8,7,7,'#334741');rect(c,20,-15,9,30,'#4b4e35');for(let i=-12;i<14;i+=5)rect(c,22,i,8,2,'#aaa16d');rect(c,-15,-5,20,2,'#827345');if(u.cargo>0)rect(c,-15,7,20*clamp(u.cargo/250,0,1),2,'#e5ac51');
 }else if(u.kind==='mcv'){
 rect(c,-18,-12,29,24,'#a5a990');for(let i=-15;i<10;i+=7)rect(c,i,-10,4,20,green);rect(c,12,-10,8,20,dark);rect(c,13,-7,6,14,'#3c5148');line(c,-13,-14,15,7,'#d2c5a2',3);
+}else if(u.kind==='repairapc'){
+rect(c,-15,-9,28,18,light);rect(c,-11,-7,17,14,'#475645');rect(c,-7,-1,9,2,'#d9f0b1');rect(c,-3.5,-4.5,2,9,'#d9f0b1');rect(c,9,-7,6,14,dark);line(c,-13,-10,4,-12,'#d7ca9a',2);line(c,-13,10,4,12,'#d7ca9a',2);
 }else if(['launcher','deviator'].includes(u.kind)){
-rect(c,-14,-11,24,22,dark);for(let i=-8;i<=8;i+=8){rect(c,-17,i-3,31,6,'#a0a389');rect(c,9,i-2,8,4,u.kind==='deviator'?'#9daf7b':'#4c493b')};rect(c,15,-7,6,14,green);
+rect(c,-14,-11,24,22,dark);for(let i=-8;i<=8;i+=8){rect(c,-17,i-3,31,6,'#a0a389');rect(c,9,i-2,8,4,u.kind==='deviator'?'#9d7bc7':'#4c493b')};rect(c,15,-7,6,14,green);
 }else{
 rect(c,-14,-8,9,16,dark);for(let i=-12;i<-4;i+=3)line(c,i,-6,i,6,'#879174',1);
 c.save();c.rotate((u.turretAngle??u.angle??0)-(u.angle||0));
 if(u.kind==='sonic'){poly(c,[[-8,-8],[9,-10],[17,-6],[17,6],[9,10],[-8,8]],light,dark);rect(c,5,-5,18,10,'#3b5046');for(let i=0;i<3;i++){line(c,17+i*4,-8-i,17+i*4,8+i,'#a7d7b2',2)}}
+else if(u.kind==='flametank'){ellipse(c,-7,-5,4,4,'#c96e3b');ellipse(c,-7,5,4,4,'#c96e3b');poly(c,[[-7,-8],[8,-8],[12,-4],[12,4],[8,8],[-7,8]],light,'#6c4e38');rect(c,8,-4,19,8,'#4f3d33');rect(c,24,-5,5,10,'#e2894b')}
+else if(u.kind==='aatank'){poly(c,[[-8,-9],[8,-9],[11,0],[8,9],[-8,9]],light,'#566348');rect(c,4,-7,19,2.5,'#4b5642');rect(c,4,-2.5,19,2.5,'#4b5642');rect(c,4,1,19,2.5,'#4b5642');rect(c,4,5.5,19,2.5,'#4b5642');ellipse(c,-4,0,4,4,'#d5cf9e')}
 else {poly(c,[[-8,-9],[6,-9],[12,-5],[12,6],[5,10],[-9,7]],light,'#58674b');ellipse(c,-3,0,5,5,green);rect(c,-5,-3,5,5,dark);if(u.kind==='siege'||u.kind==='devastator'||u.kind==='emperor'){rect(c,6,-6,26,4,'#555d4a');rect(c,6,3,26,4,'#555d4a');rect(c,25,-6,7,3,'#c1c2a0');rect(c,25,3,7,3,'#c1c2a0')}else{rect(c,7,-2,27,5,'#4d5944');rect(c,26,-2,7,4,'#b9bd9a');line(c,9,-2,29,-2,'#d4d1ab',1)}}
 c.restore();rect(c,-16,-10,7,2,accent);rect(c,-17,8,6,2,accent);
 }
@@ -261,10 +315,19 @@ for(let x of [-19,19]){ellipse(c,x,-5,18,22,'#424e3c');ellipse(c,x,-7,15,17,'#7f
 for(let x of [-43,-19]){rect(c,x-11,-18,21,44,'#747d67');ellipse(c,x,24,11,6,'#58614c');ellipse(c,x,-18,11,7,'#cfbea0');ellipse(c,x,-19,7,4,'#a59e7e');line(c,x-8,-15,x-8,20,'#c5b99a',2);rect(c,x-11,3,21,5,trim)}
 rect(c,1,-32,49,62,'#757c63');rect(c,4,-32,43,37,'#b5ad8e');for(let x=8;x<43;x+=10)rect(c,x,-27,6,22,'#8d947a');rect(c,9,12,35,22,'#344333');for(let x=11;x<43;x+=8){poly(c,[[x,12],[x+4,12],[x+1,17],[x-3,17]],'#c8b477')}rect(c,45,-40,8,43,'#71745b');ellipse(c,49,-40,5,3,'#c4b79a');rect(c,-7,-3,9,12,'#d1c19b');rect(c,-50,30,96,4,trim);
 if(!icon){for(let k=0;k<3;k++){let p=(t*.35+k*.3)%1;ellipse(c,49+Math.sin(p*5)*8,-48-p*42,5+p*15,4+p*10,'rgba(213,207,176,'+((1-p)*.16)+')')}}
+}else if(b.kind==='silo'){
+for(let x of [-15,15]){ellipse(c,x,2,13,18,'#4f5845');ellipse(c,x,0,12,16,'#8d9278');ellipse(c,x,-2,8,10,'#d49b4f');ellipse(c,x,-3,4,5,'#f1c475')}rect(c,-29,21,58,5,trim);
+}else if(b.kind==='palace'){
+rect(c,-54,-38,108,74,'#6c735a');rect(c,-48,-32,96,60,'#989c80');rect(c,-50,-36,22,68,metal);rect(c,28,-36,22,68,metal);
+ellipse(c,0,-4,24,22,trimDark);ellipse(c,0,-6,18,16,'#c6be9f');ellipse(c,0,-7,9,8,'#e6be6c');
+rect(c,-44,-43,10,20,trim);rect(c,34,-43,10,20,trim);rect(c,-20,24,40,15,'#2f3c2d');rect(c,-55,34,110,6,trim);
 }else if(b.kind==='factory'){
 rect(c,-44,-33,88,40,'#acac8e');for(let x=-40;x<40;x+=11){rect(c,x,-30,8,34,'#969d80');line(c,x,-29,x+7,-29,'#d3c7a7')}rect(c,-38,8,76,30,'#3a4533');for(let x=-35;x<35;x+=8)rect(c,x,9,5,22,'#58614b');rect(c,-38,29,76,10,'#2c3829');for(let x=-37;x<35;x+=11)poly(c,[[x,29],[x+6,29],[x+2,35],[x-4,35]],'#c3b27d');rect(c,-49,-36,98,5,trim);rect(c,-49,-28,6,59,metal);rect(c,43,-28,6,59,metal);rect(c,-14,-20,28,18,'#5e6b52');line(c,-11,-15,10,-15,'#acb590',2);
 }else if(b.kind==='turret'||b.kind==='rocketTurret'){
-rect(c,-20,-20,40,40,'#727b61');for(let x of [-17,12])for(let y of [-17,12])rect(c,x,y,6,6,'#b2b08e');ellipse(c,0,0,15,15,trimDark);c.save();c.rotate(b.turretAngle||-.7);poly(c,[[-10,-11],[9,-11],[14,-5],[14,7],[5,12],[-10,8]],trim,'#c0c19c');rect(c,7,-4,31,8,'#4e5942');rect(c,27,-4,10,7,'#a6ae8c');rect(c,-7,-7,9,14,metal);c.restore();
+rect(c,-20,-20,40,40,'#727b61');for(let x of [-17,12])for(let y of [-17,12])rect(c,x,y,6,6,'#b2b08e');ellipse(c,0,0,15,15,trimDark);c.save();c.rotate(b.turretAngle||-.7);
+if(b.kind==='rocketTurret'){poly(c,[[-11,-12],[10,-12],[13,0],[10,12],[-11,12]],trim,'#c0c19c');rect(c,2,-10,18,6,'#4b5340');rect(c,2,4,18,6,'#4b5340');rect(c,15,-9,5,4,'#d9955d');rect(c,15,5,5,4,'#d9955d')}
+else{poly(c,[[-10,-11],[9,-11],[14,-5],[14,7],[5,12],[-10,8]],trim,'#c0c19c');rect(c,7,-4,31,8,'#4e5942');rect(c,27,-4,10,7,'#a6ae8c');rect(c,-7,-7,9,14,metal)}
+c.restore();
 }else if(b.kind==='starport'){
 rect(c,-45,-31,90,58,'#68745e');rect(c,-35,-23,70,47,'#3d4b39');line(c,-27,0,27,0,'#d6c99f',4);line(c,0,-18,0,18,'#d6c99f',4);rect(c,-44,30,88,6,trim);
 }else if(b.kind==='repairbay'){
@@ -334,16 +397,28 @@ function enemyLevel(){return G&&G.mission==='campaign'?G.campaignIndex:0}
 function enemyHealthFactor(){return 1+enemyLevel()*.12}
 function enemyDamageFactor(){return 1+enemyLevel()*.06}
 function enemyBaseCount(index){return 1+Math.floor((index+1)/3)}
-function addUnit(kind,x,y,owner=0){const d=UNIT[kind],u={id:nextId++,kind,x,y,owner,hp:d.hp*(owner===1?.88*enemyHealthFactor():1)*(owner===0?1+.2*G.upgrades.armor:1),max:d.hp*(owner===1?.88*enemyHealthFactor():1)*(owner===0?1+.2*G.upgrades.armor:1),angle:owner?2.3:-.3,turretAngle:owner?2.3:-.3,cool:Math.random(),order:kind==='harvester'?'harvest':'guard',target:null,move:null,cargo:0,harvestState:'collect',spiceIndex:spicePatches.reduce((a,p,i)=>Math.hypot(p.x-x,p.y-y)<Math.hypot(spicePatches[a].x-x,spicePatches[a].y-y)?i:a,0),repair:false,flash:0};units.push(u);return u}
-function addBuilding(kind,x,y,owner=0,build=1){const d=BUILD[kind],b={id:nextId++,kind,x,y,owner,hp:d.hp*(owner===1?.85*enemyHealthFactor():1)*(build<1?.2:1),max:d.hp*(owner===1?.85*enemyHealthFactor():1),building:true,build,emerge:1,cool:0,repair:false,flash:0,turretAngle:-.8};buildings.push(b);return b}
+function addUnit(kind,x,y,owner=0){const d=UNIT[kind],u={id:nextId++,kind,x,y,owner,hp:d.hp*(owner===1?.88*enemyHealthFactor():1)*(owner===0?1+.2*G.upgrades.armor:1),max:d.hp*(owner===1?.88*enemyHealthFactor():1)*(owner===0?1+.2*G.upgrades.armor:1),angle:owner?2.3:-.3,turretAngle:owner?2.3:-.3,cool:Math.random(),order:kind==='harvester'?'harvest':'guard',target:null,move:null,cargo:0,harvestState:'collect',spiceIndex:allSpicePatches().reduce((a,p,i)=>Math.hypot(p.x-x,p.y-y)<Math.hypot(allSpicePatches()[a].x-x,allSpicePatches()[a].y-y)?i:a,0),repair:false,flash:0,xp:0,rank:0,burn:0,burnOwner:-1,deviatedTimer:0,deviatedFrom:owner,stealthTimer:0};units.push(u);return u}
+function addBuilding(kind,x,y,owner=0,build=1){const d=BUILD[kind],b={id:nextId++,kind,x,y,owner,hp:d.hp*(owner===1?.85*enemyHealthFactor():1)*(build<1?.2:1),max:d.hp*(owner===1?.85*enemyHealthFactor():1),building:true,build,emerge:1,cool:0,repair:false,flash:0,turretAngle:-.8,burn:0,burnOwner:-1};buildings.push(b);return b}
+function isVisibleTo(v,viewerOwner){
+ if(!v||v.dead)return false;
+ if(v.building||v.owner===viewerOwner)return true;
+ const d=UNIT[v.kind];if(!d?.cloaked||(v.stealthTimer||0)>0)return true;
+ for(let b of buildings)if(!b.dead&&b.owner===viewerOwner&&b.build>=1&&(b.emerge??1)>=1&&dist(b,v)<((b.kind==='radar'||b.kind==='turret'||b.kind==='rocketTurret')?285:130))return true;
+ for(let u of units)if(!u.dead&&u.owner===viewerOwner&&dist(u,v)<130)return true;
+ return false;
+}
 function resetGame(campaignIndex=0){
-G={state:'briefing',credits:1200,time:0,harvested:0,kills:0,score:0,queue:[],wave:0,nextWave:48,nextWorm:78,worm:null,powerUse:75,powerMax:130,cap:28,enemyCredits:1600,enemyQueue:[],enemyBuildCheck:0,enemyTrainCheck:0,stage:0,marketQueue:[],marketBought:0,mission:$('missionSelect').value,campaignIndex,transitionRemaining:0,transitionBlocked:false,missionHarvestStart:0,enemySites:[],upgrades:{weapons:0,armor:0,harvest:0,production:0}};
+const mSel=$('missionSelect').value;
+G={state:'briefing',credits:1200,time:0,harvested:0,kills:0,score:0,queue:[],wave:0,nextWave:mSel==='survival'?30:48,nextWorm:78,worm:null,powerUse:75,powerMax:130,cap:28,enemyCredits:1600,enemyQueue:[],enemyBuildCheck:0,enemyTrainCheck:0,stage:0,marketQueue:[],marketBought:0,mission:mSel,campaignIndex,transitionRemaining:0,transitionBlocked:false,missionHarvestStart:0,enemySites:[],upgrades:{weapons:0,armor:0,harvest:0,production:0},thumperCd:0,fremenCd:0,thumper:null,blooms:[],nextBloom:26,extraSpice:[],storm:null,nextStorm:mSel==='survival'?22:62};
 units=[];buildings=[];projectiles=[];effects=[];nextId=1;selected=[];controlGroups={};campaignCheckpoint=null;mode=null;placement=null;camera={x:WW/2,y:WH/2,zoom:1};
 addBuilding('yard',350,686);addBuilding('wind',285,521);addBuilding('factory',491,532);addBuilding('refinery',565,764);addBuilding('turret',672,596);
-let shift=G.mission==='campaign'?(campaignIndex%3)*130:0;const enemy=addBuilding('yard',2000+shift,330,1);G.enemyHQ=enemy.id;G.enemySites.push({x:enemy.x,y:enemy.y});enemy.houseLabel=G.mission==='campaign'?CAMPAIGN[campaignIndex].enemy:'Харконнены';enemy.emerge=0;let enemyWind=addBuilding('wind',2100+shift,430,1);enemyWind.emerge=0;
+let shift=G.mission==='campaign'?(campaignIndex%3)*130:0;const enemy=addBuilding('yard',2000+shift,330,1);G.enemyHQ=enemy.id;G.enemySites.push({x:enemy.x,y:enemy.y});enemy.houseLabel=G.mission==='campaign'?CAMPAIGN[campaignIndex].enemy:G.mission==='survival'?'Император':'Харконнены';enemy.emerge=0;let enemyWind=addBuilding('wind',2100+shift,430,1);enemyWind.emerge=0;
 let a=addUnit('tank',667,483);addUnit('tank',588,422);addUnit('quad',610,625);addUnit('troopers',737,542);addUnit('harvester',785,726);
 addUnit('tank',1930+shift,530,1);addUnit('quad',2020+shift,540,1);addUnit('troopers',2100+shift,545,1);if(G.mission==='campaign'&&campaignIndex>=4)addUnit('siege',1950+shift,440,1);if(G.mission==='campaign'&&campaignIndex>=7){addBuilding('turret',1840+shift,400,1);addUnit('tank',1870+shift,565,1)}
-selected=[a.id];$('briefing').style.display='block';$('campaignTransition').style.display='none';$('retryTransition').style.display='none';$('makeRoom').style.display='none';showMissionDescription();$('pauseLayer').style.display='none';$('resultOverlay').classList.remove('open');$('placementBanner').classList.remove('show');$('zoomValue').textContent='100%';$('toast').classList.remove('show');$('pauseBtn').innerHTML=svgIcon('pause');modalOpen=false;renderProduction();updateSelection();updateUI();resize();
+if(G.mission==='survival'){addBuilding('turret',1850,420,1);addUnit('flametank',1900,510,1);addUnit('sardaukar',2060,510,1)}
+selected=[a.id];$('briefing').style.display='block';$('campaignTransition').style.display='none';$('retryTransition').style.display='none';$('makeRoom').style.display='none';showMissionDescription();$('pauseLayer').style.display='none';$('resultOverlay').classList.remove('open');$('placementBanner').classList.remove('show');$('zoomValue').textContent='100%';$('toast').classList.remove('show');$('pauseBtn').innerHTML=svgIcon('pause');modalOpen=false;
+$('archiveCount').textContent=Object.keys(UNIT).length;$('archiveEyebrow').textContent='ПОЛЕВОЙ СПРАВОЧНИК / '+Object.keys(UNIT).length+' ЕДИНИЦА';
+renderProduction();updateSelection();updateUI();resize();
 }
 function toast(text,warning=false){$('toast').textContent=text;$('toast').style.borderLeftColor=warning?'#d0846a':'#d7b770';$('toast').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').classList.remove('show'),4200);if(warning)sound('warn')}
 function startGame(){if(G.state!=='briefing')return;G.mission=$('missionSelect').value;G.state='playing';$('briefing').style.display='none';if(G.mission==='campaign'){spawnAllies();saveCampaignCheckpoint()}sound('ready');toast('Командование принято. Харвестер приступил к добыче.')}
@@ -367,8 +442,8 @@ if(G.credits<BUILD[kind].price){toast('Недостаточно кредитов
 placement=kind;mode=null;$('placementBanner').textContent=BUILD[kind].name+' · выберите место у базы · Esc — отмена';$('placementBanner').classList.add('show');renderProduction();sound('click');
 }
 function validBuild(p,kind){const d=BUILD[kind];return p.x>d.w&&p.x<WW-d.w&&p.y>d.h&&p.y<WH-d.h&&buildings.some(b=>!b.dead&&!b.owner&&b.kind==='yard'&&dist(p,b)<430)&&!buildings.some(b=>!b.dead&&Math.abs(p.x-b.x)<(d.w+BUILD[b.kind].w)/2+20&&Math.abs(p.y-b.y)<(d.h+BUILD[b.kind].h)/2+20)}
-function cancelMode(){mode=null;placement=null;$('placementBanner').classList.remove('show');document.querySelectorAll('.command').forEach(b=>b.classList.remove('active'));renderProduction()}
-const MARKET={quad:220,tank:360,harvester:520,siege:560,launcher:520};
+function cancelMode(){mode=null;placement=null;$('placementBanner').classList.remove('show');document.querySelectorAll('.command, .palace-hud button').forEach(b=>b.classList.remove('active'));renderProduction()}
+const MARKET={quad:220,tank:360,flametank:420,aatank:390,repairapc:370,harvester:520,siege:560,launcher:520,stealth:590,hovertank:640};
 function buyMarket(kind){
  if(G.state!=='playing'){toast('Рынок доступен во время операции.');return}
  if(!hasBuilding(0,'starport')){toast('Для рынка нужен готовый космопорт.',true);return}
@@ -383,26 +458,36 @@ function buyUpgrade(kind){let u=UPGRADES[kind],level=G.upgrades[kind];if(G.state
 function renderProduction(){
  if(productionTab==='upgrades'){$('marketStatus').hidden=false;$('marketStatus').textContent='УЛУЧШЕНИЯ НА ВСЮ АРМИЮ · до двух уровней';$('productionGrid').innerHTML=Object.entries(UPGRADES).map(([k,u])=>'<button class="production-card" data-upgrade="'+k+'" title="'+u.desc+' · Требуется: '+BUILD[u.requires].name+'"><img alt="" src="'+assetIcon(u.icon,!!u.building)+'"><span class="unit-name">'+u.name+' '+G.upgrades[k]+'/2</span><span class="price">'+(G.upgrades[k]>=2?'МАКС.':upgradeCost(k))+'</span></button>').join('');$('productionGrid').querySelectorAll('button').forEach(b=>b.onclick=()=>buyUpgrade(b.dataset.upgrade));return}
  let isMarket=productionTab==='market',isBuilding=productionTab==='buildings';
- let list=isMarket?Object.keys(MARKET):isBuilding?['wind','refinery','barracks','factory','radar','turret','repairbay','rocketTurret','starport']:['soldier','infantry','trooper','troopers','trike','quad','tank','harvester','siege','launcher','sonic','mcv','carryall','ornithopter','fremen'];
+ let list=isMarket?Object.keys(MARKET):isBuilding?['wind','refinery','silo','barracks','factory','radar','turret','repairbay','rocketTurret','starport','palace']:['soldier','infantry','trooper','troopers','sniper','engineer','trike','quad','tank','flametank','aatank','repairapc','harvester','siege','launcher','sonic','stealth','hovertank','mcv','carryall','ornithopter','bomber','fremen'];
  $('marketStatus').hidden=!isMarket;
- $('productionGrid').innerHTML=list.map(k=>{let d=isBuilding?BUILD[k]:UNIT[k],short={tank:'Танк',ornithopter:'Орнитоптер',refinery:'Завод спайса',factory:'Завод техники'}[k]||d.name;let missing=isMarket?(!hasBuilding(0,'starport')?['starport']:[]):missingTech(0,k,isBuilding);return '<button class="production-card'+(placement===k?' build-active':'')+'" data-kind="'+k+'" title="'+d.name+' · '+(d.desc||d.role)+' · '+(missing.length?techMessage(missing):'Технология доступна')+'"><img alt="" src="'+assetIcon(k,isBuilding)+'"><span class="unit-name">'+short+'</span><span class="price">'+(isMarket?MARKET[k]:isBuilding?d.price:unitCost(k))+'</span></button>'}).join('');
+ $('productionGrid').innerHTML=list.map(k=>{let d=isBuilding?BUILD[k]:UNIT[k],short={tank:'Танк',ornithopter:'Орнитоптер',refinery:'Завод спайса',factory:'Завод техники',silo:'Хранилище',flametank:'Огнемёт. танк',aatank:'ЗСУ «Шторм»',repairapc:'Рем. БТР',stealth:'Танк «Мираж»',hovertank:'Гравитанк',bomber:'Бомбардировщик'}[k]||d.name;let missing=isMarket?(!hasBuilding(0,'starport')?['starport']:[]):missingTech(0,k,isBuilding);return '<button class="production-card'+(placement===k?' build-active':'')+'" data-kind="'+k+'" title="'+d.name+' · '+(d.desc||d.role)+' · '+(missing.length?techMessage(missing):'Технология доступна')+'"><img alt="" src="'+assetIcon(k,isBuilding)+'"><span class="unit-name">'+short+'</span><span class="price">'+(isMarket?MARKET[k]:isBuilding?d.price:unitCost(k))+'</span></button>'}).join('');
  $('productionGrid').querySelectorAll('button').forEach(b=>b.onclick=()=>isMarket?buyMarket(b.dataset.kind):isBuilding?chooseBuilding(b.dataset.kind):queueUnit(b.dataset.kind));
 }
 document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{productionTab=b.dataset.tab;document.querySelectorAll('[data-tab]').forEach(x=>x.classList.toggle('active',x===b));renderProduction();sound('click')});
 function updateSelection(){
 let s=getSelected(),u=s[0];if(!u){$('selectionArt').src=assetIcon('tank');$('selectionArt').style.opacity='.25';$('selectionName').textContent='Выберите подразделение';$('selectionType').textContent='ТАКТИЧЕСКОЕ УПРАВЛЕНИЕ';$('healthText').textContent='—';$('healthFill').style.width='0%';$('selectionStatus').textContent='ЛКМ — выбрать. ПКМ — отдать приказ.';return}
-$('selectionArt').style.opacity='1';$('selectionArt').src=assetIcon(u.kind,!!u.building);$('selectionName').textContent=s.length>1?'Боевой отряд · '+s.length:(u.building?BUILD[u.kind]:UNIT[u.kind]).name;$('selectionType').textContent='АТРЕЙДЕСЫ · '+(s.length>1?'ТАКТИЧЕСКАЯ ГРУППА':u.building?'ИНФРАСТРУКТУРА':UNIT[u.kind].group==='air'?'АВИАЦИЯ':UNIT[u.kind].group==='infantry'?'ПЕХОТА':'БРОНЕТЕХНИКА');
+$('selectionArt').style.opacity='1';$('selectionArt').src=assetIcon(u.kind,!!u.building);let stars=!u.building&&u.rank?' '+'★'.repeat(u.rank):'';$('selectionName').textContent=(s.length>1?'Боевой отряд · '+s.length:(u.building?BUILD[u.kind]:UNIT[u.kind]).name)+stars;$('selectionType').textContent='АТРЕЙДЕСЫ · '+(s.length>1?'ТАКТИЧЕСКАЯ ГРУППА':u.building?'ИНФРАСТРУКТУРА':UNIT[u.kind].group==='air'?'АВИАЦИЯ':UNIT[u.kind].group==='infantry'?'ПЕХОТА':'БРОНЕТЕХНИКА')+(stars?' · РАНГ '+u.rank:'');
 $('repairCommand').title=u.kind==='mcv'?'Развернуть в строительный двор (R)':'Ремонт: 3 кредита / сек (R)';
 updateSelectionHealth();
 }
 function updateSelectionHealth(){
 let s=getSelected();if(!s.length)return;let hp=s.reduce((a,b)=>a+b.hp,0),max=s.reduce((a,b)=>a+b.max,0);$('healthFill').style.width=clamp(hp/max*100,0,100)+'%';$('healthFill').style.background=hp/max<.3?'#d0846a':'#aabb86';$('healthText').textContent=Math.ceil(hp)+' / '+Math.ceil(max);
-let u=s[0];$('selectionStatus').textContent=u.repair?'Восстановление брони. −3 кредита / сек.':u.kind==='harvester'?'Спайс: '+Math.floor(u.cargo)+' / 250. '+(u.harvestState==='return'?'Возвращается на завод.':'Добыча ресурсов.'):u.kind==='mcv'?'R — развернуть строительный двор.':u.order==='attack'?'Выполняет боевую задачу.':u.move?'Движение к позиции.':'На позиции. Автоматический огонь.';
+let u=s[0];$('selectionStatus').textContent=u.repair?'Восстановление брони. −3 кредита / сек.':u.burn>0?'Горит! ('+Math.ceil(u.burn)+' с)':u.kind==='harvester'?'Спайс: '+Math.floor(u.cargo)+' / 250. '+(u.harvestState==='return'?'Возвращается на завод.':'Добыча ресурсов.'):u.kind==='mcv'?'R — развернуть строительный двор.':u.kind==='engineer'?'ПКМ по поврежд. врагу (<60%) — захват, по своему — ремонт.':u.order==='attack'?'Выполняет боевую задачу.':u.move?'Движение к позиции.':'На позиции. Автоматический огонь.';
 }
+function activatePalace(which){
+if(G.state!=='playing')return;
+if(!hasBuilding(0,'palace')){toast('Требуется готовый Дворец.',true);return}
+if(which==='thumper'){if(G.thumperCd>0){toast('Манок перезаряжается: '+Math.ceil(G.thumperCd)+' с',true);return}mode='thumper';placement=null;$('placementBanner').textContent='Манок червя · выберите точку в пустыне · Esc — отмена';$('placementBanner').classList.add('show');$('abilityThumper').classList.add('active')}
+else if(which==='fremen'){if(G.fremenCd>0){toast('Зов Фрименов перезаряжается: '+Math.ceil(G.fremenCd)+' с',true);return}mode='fremen';placement=null;$('placementBanner').textContent='Зов Фрименов · выберите точку высадки отряда · Esc — отмена';$('placementBanner').classList.add('show');$('abilityFremen').classList.add('active')}
+sound('click');
+}
+$('abilityThumper').onclick=()=>activatePalace('thumper');
+$('abilityFremen').onclick=()=>activatePalace('fremen');
 function command(cmd){
 if(G.state!=='playing')return;
 let s=getSelected();if(!s.length){toast('Сначала выберите свой отряд.');return}
 if(cmd==='guard'){s.forEach(u=>{u.order='guard';u.move=null;u.target=null});cancelMode();toast('Приказ: удерживать позицию.')}
+else if(cmd==='scatter'){let movable=s.filter(u=>!u.building);if(!movable.length){toast('Рассредоточение доступно только для отрядов.');return}let cx=movable.reduce((a,u)=>a+u.x,0)/movable.length,cy=movable.reduce((a,u)=>a+u.y,0)/movable.length;movable.forEach((u,i)=>{let a=movable.length===1?Math.random()*Math.PI*2:Math.atan2(u.y-cy,u.x-cx)||(i*2.39);if(Math.hypot(u.x-cx,u.y-cy)<6)a=i*2.39;let d=82+Math.random()*36;u.target=null;u.repair=false;u.order='move';u.move={x:clamp(u.x+Math.cos(a)*d,35,WW-35),y:clamp(u.y+Math.sin(a)*d,35,WH-35)}});cancelMode();toast('Отряд рассредоточивается!')}
 else if(cmd==='repair'){let changed=false;s.forEach(u=>{if(u.kind==='mcv'&&!u.building){if(buildings.some(b=>!b.dead&&dist(u,b)<110)){toast('Для развёртывания нужно свободное место.');return}u.dead=true;let b=addBuilding('yard',u.x,u.y);selected=[b.id];changed=true;toast('Строительный двор развёрнут.')}else if(u.hp<u.max){u.repair=!u.repair;changed=true}});if(!changed)toast('Броня в порядке. Ремонт не требуется.');updateSelection()}
 else{mode=cmd;placement=null;$('placementBanner').textContent=cmd==='attack'?'Укажите противника или точку наступления · Esc — отмена':'Укажите точку назначения · Esc — отмена';$('placementBanner').classList.add('show');document.querySelectorAll('.command').forEach(b=>b.classList.toggle('active',b.dataset.command===cmd))}
 sound('click');
@@ -410,13 +495,15 @@ sound('click');
 document.querySelectorAll('[data-command]').forEach(b=>b.onclick=()=>command(b.dataset.command));
 function selectArmy(){selected=units.filter(u=>!u.dead&&u.owner===0&&!u.ally&&UNIT[u.kind].damage>0).map(u=>u.id);updateSelection();sound('click');toast('Вся армия выбрана. Укажите цель правой кнопкой или касанием.')}
 $('selectArmy').onclick=selectArmy;
-function pick(p){let u=units.filter(u=>!u.dead&&dist(u,p)<(u.kind==='emperor'?70:UNIT[u.kind].group==='infantry'?20:30)).sort((a,b)=>dist(a,p)-dist(b,p))[0];if(u)return u;return buildings.find(b=>!b.dead&&(b.emerge??1)>=1&&Math.abs(b.x-p.x)<BUILD[b.kind].w/2+7&&Math.abs(b.y-p.y)<BUILD[b.kind].h/2+10)}
+function pick(p){let u=units.filter(u=>!u.dead&&(u.owner===0||isVisibleTo(u,0))&&dist(u,p)<(u.kind==='emperor'?70:UNIT[u.kind].group==='infantry'?20:30)).sort((a,b)=>dist(a,p)-dist(b,p))[0];if(u)return u;return buildings.find(b=>!b.dead&&(b.emerge??1)>=1&&Math.abs(b.x-p.x)<BUILD[b.kind].w/2+7&&Math.abs(b.y-p.y)<BUILD[b.kind].h/2+10)}
 function issueOrder(p,target){
 let s=getSelected().filter(u=>!u.building);if(!s.length)return;
+const sp=allSpicePatches();
 s.forEach((u,i)=>{
 u.target=null;u.repair=false;
-if(target&&target.owner!==u.owner){u.target=target;u.order='attack';u.move=null}
-else if(u.kind==='harvester'&&(spicePatches.some(q=>Math.abs(q.x-p.x)<q.rx&&Math.abs(q.y-p.y)<q.ry)||target?.kind==='refinery')){u.spiceIndex=spicePatches.reduce((a,q,j)=>dist(q,p)<dist(spicePatches[a],p)?j:a,0);u.order='harvest';u.harvestState=target?.kind==='refinery'?'return':'collect';u.move=null}
+if(u.kind==='engineer'&&target&&target.building&&target.owner===u.owner&&target.hp<target.max){u.target=target;u.order='engineer';u.move=null}
+else if(target&&target.owner!==u.owner){u.target=target;u.order='attack';u.move=null}
+else if(u.kind==='harvester'&&(sp.some(q=>Math.abs(q.x-p.x)<q.rx&&Math.abs(q.y-p.y)<q.ry)||target?.kind==='refinery')){u.spiceIndex=sp.reduce((a,q,j)=>dist(q,p)<dist(sp[a],p)?j:a,0);u.order='harvest';u.harvestState=target?.kind==='refinery'?'return':'collect';u.move=null}
 else{let spread=s.length>1?Math.sqrt(i)*29:0,ang=i*2.4;u.move={x:clamp(p.x+Math.cos(ang)*spread,35,WW-35),y:clamp(p.y+Math.sin(ang)*spread,35,WH-35)};u.order=mode==='attack'?'advance':'move'}
 });
 effects.push({type:'order',x:p.x,y:p.y,life:1.1,max:1.1,color:target?.owner===1?'#e29372':'#d7e9a1'});cancelMode();updateSelection();sound('click');
@@ -424,7 +511,7 @@ effects.push({type:'order',x:p.x,y:p.y,life:1.1,max:1.1,color:target?.owner===1?
 canvas.addEventListener('contextmenu',e=>e.preventDefault());
 canvas.addEventListener('pointerdown',e=>{
 if(G.state!=='playing'||modalOpen)return;let p=worldPoint(e);mouse=p;
-if(e.button===2){issueOrder(p,pick(p));return}
+if(e.button===2){if(mode==='thumper'||mode==='fremen'){cancelMode();return}issueOrder(p,pick(p));return}
 if(e.button!==0)return;
 drag={sx:e.offsetX,sy:e.offsetY,ex:e.offsetX,ey:e.offsetY,p,shift:e.shiftKey,pointerId:e.pointerId};
 try{canvas.setPointerCapture(e.pointerId)}catch(err){}
@@ -432,12 +519,14 @@ try{canvas.setPointerCapture(e.pointerId)}catch(err){}
 canvas.addEventListener('pointermove',e=>{mouse=worldPoint(e);if(drag){let b=canvas.getBoundingClientRect();drag.ex=e.clientX-b.left;drag.ey=e.clientY-b.top}canvas.style.cursor=placement||mode?'crosshair':pick(mouse)?.owner===0?'pointer':'default'});
 canvas.addEventListener('pointerup',e=>{
 if(!drag)return;let d=drag;drag=null;if(G.state!=='playing')return;let p=worldPoint(e);
+if(mode==='thumper'){if(!hasBuilding(0,'palace')){cancelMode();return}G.thumperCd=55;G.worm={x:clamp(p.x,60,WW-60),y:clamp(p.y,60,WH-60),t:3,hit:false,thumper:true,radius:95,dmg:260};effects.push({type:'order',x:p.x,y:p.y,life:2,max:2,color:'#f2cb79'});toast('Сейсмический манок установлен! Червь выйдет через 4 секунды.',true);cancelMode();sound('ready');return}
+if(mode==='fremen'){if(!hasBuilding(0,'palace')){cancelMode();return}G.fremenCd=45;let f1=addUnit('fremen',clamp(p.x-22,40,WW-40),clamp(p.y,40,WH-40),0),f2=addUnit('fremen',clamp(p.x+22,40,WW-40),clamp(p.y+12,40,WH-40),0),sn=addUnit('sniper',clamp(p.x,40,WW-40),clamp(p.y-20,40,WH-40),0);[f1,f2,sn].forEach(x=>{x.order='advance';x.move={x:clamp(p.x,40,WW-40),y:clamp(p.y,40,WH-40)}});selected=[f1.id,f2.id,sn.id];effects.push({type:'explosion',x:p.x,y:p.y,life:.7,max:.7,size:48});toast('Отряд Фрименов и Снайпер высадились из песков!');cancelMode();updateSelection();sound('ready');return}
 if(placement){let missing=missingTech(0,placement,true);if(missing.length){toast(techMessage(missing),true);cancelMode();return}if(!validBuild(p,placement)){toast('Нужна свободная площадка в радиусе базы.',true);return}if(G.credits<BUILD[placement].price){toast('Недостаточно кредитов.',true);cancelMode();return}G.credits-=BUILD[placement].price;let b=addBuilding(placement,p.x,p.y,0,0);selected=[b.id];toast(BUILD[placement].name+' — строительство начато.');cancelMode();updateSelection();sound('ready');return}
 if(Math.hypot(d.ex-d.sx,d.ey-d.sy)>9&&!mode){let minx=Math.min(d.p.x,p.x),maxx=Math.max(d.p.x,p.x),miny=Math.min(d.p.y,p.y),maxy=Math.max(d.p.y,p.y);let sel=units.filter(u=>!u.owner&&!u.ally&&!u.dead&&u.x>=minx&&u.x<=maxx&&u.y>=miny&&u.y<=maxy).map(u=>u.id);selected=d.shift?[...new Set(selected.concat(sel))]:sel;updateSelection();sound('click');return}
 let target=pick(p);
 if(mode){issueOrder(p,target?.owner===1?target:null);return}
 if(target&&target.ally){toast(target.allyName+' — союзники. Они сражаются самостоятельно.');return}
-if(target&&target.owner===0){selected=d.shift?selected.includes(target.id)?selected.filter(id=>id!==target.id):selected.concat(target.id):[target.id];updateSelection();sound('click')}
+if(target&&target.owner===0){if(getSelected().some(u=>u.kind==='engineer')&&target.building&&target.hp<target.max&&!d.shift){issueOrder(p,target);return}selected=d.shift?selected.includes(target.id)?selected.filter(id=>id!==target.id):selected.concat(target.id):[target.id];updateSelection();sound('click')}
 else issueOrder(p,target);
 });
 canvas.addEventListener('pointercancel',()=>drag=null);
@@ -460,7 +549,8 @@ $('archiveGrid').querySelectorAll('button').forEach(b=>b.onclick=()=>{archiveSel
 renderArchiveDetail();
 }
 function renderArchiveDetail(){
-let k=archiveSelected,d=UNIT[k];$('archiveDetail').innerHTML='<img class="large-unit" src="'+assetIcon(k)+'" alt="'+d.name+'"><div class="detail-en">'+d.en.toUpperCase()+'</div><h3>'+d.name+'</h3><div class="eyebrow" style="font-size:7px">'+d.house+'</div><p>'+d.desc+'</p><div class="detail-stats"><div>ПРОЧНОСТЬ<strong>'+d.hp+'</strong></div><div>УРОН<strong>'+(d.damage||'—')+'</strong></div><div>СКОРОСТЬ<strong>'+d.speed+'</strong></div><div>ДАЛЬНОСТЬ<strong>'+(d.range||'—')+'</strong></div></div>'+(d.locked?'<div class="eyebrow" style="line-height:1.8;font-size:8px">Не производится<br>в этой операции</div>':'<button class="primary" id="archiveTrain">Заказать · '+unitCost(k)+' ◇ '+svgIcon('plus')+'</button>')+'<a class="reference-link" href="https://www.spriters-resource.com/search/?q=Dune+II" target="_blank" rel="noopener noreferrer">Оригинальные спрайты ↗</a><a class="reference-link" href="https://dune.fandom.com/wiki/Dune_II" target="_blank" rel="noopener noreferrer">Справочник Dune Wiki ↗</a>';
+let k=archiveSelected,d=UNIT[k];let armorNames={infantry:'Пехота',light:'Лёгкая',heavy:'Тяжёлая',air:'Авиация'};let dmgNames={bullet:'Пули',shell:'Снаряд',rocket:'Ракеты',flame:'Огонь',sonic:'Звук',flak:'Зенитный',laser:'Лазер',explosive:'Взрыв'};
+$('archiveDetail').innerHTML='<img class="large-unit" src="'+assetIcon(k)+'" alt="'+d.name+'"><div class="detail-en">'+d.en.toUpperCase()+'</div><h3>'+d.name+'</h3><div class="eyebrow" style="font-size:7px">'+d.house+(d.armor?' · Броня: '+(armorNames[d.armor]||d.armor):'')+(d.dmgType?' · '+(dmgNames[d.dmgType]||d.dmgType):'')+'</div><p>'+d.desc+'</p><div class="detail-stats"><div>ПРОЧНОСТЬ<strong>'+d.hp+'</strong></div><div>УРОН<strong>'+(d.damage||'—')+'</strong></div><div>СКОРОСТЬ<strong>'+d.speed+'</strong></div><div>ДАЛЬНОСТЬ<strong>'+(d.range||'—')+'</strong></div></div>'+(d.locked?'<div class="eyebrow" style="line-height:1.8;font-size:8px">Не производится<br>в этой операции</div>':'<button class="primary" id="archiveTrain">Заказать · '+unitCost(k)+' ◇ '+svgIcon('plus')+'</button>')+'<a class="reference-link" href="https://www.spriters-resource.com/search/?q=Dune+II" target="_blank" rel="noopener noreferrer">Оригинальные спрайты ↗</a><a class="reference-link" href="https://dune.fandom.com/wiki/Dune_II" target="_blank" rel="noopener noreferrer">Справочник Dune Wiki ↗</a>';
 if($('archiveTrain'))$('archiveTrain').onclick=()=>{closeModals();queueUnit(k)};
 }
 $('archiveFilters').querySelectorAll('button').forEach(b=>b.onclick=()=>{archiveFilter=b.dataset.filter;$('archiveFilters').querySelectorAll('button').forEach(x=>x.classList.toggle('active',x===b));let first=Object.keys(UNIT).find(k=>archiveFilter==='all'||UNIT[k].group===archiveFilter);if(archiveFilter!=='all'&&UNIT[archiveSelected].group!==archiveFilter)archiveSelected=first;renderArchive()});
@@ -475,47 +565,92 @@ if(e.code==='Space'){if(G.state==='briefing')startGame();else togglePause();retu
 if(e.code==='Equal'||e.code==='NumpadAdd')zoomBy(.25);if(e.code==='Minus'||e.code==='NumpadSubtract')zoomBy(-.25);
 if(G.state!=='playing')return;
 if(/^Digit[4-9]$/.test(e.code)){let n=e.code.slice(-1);if(e.ctrlKey||e.metaKey){e.preventDefault();controlGroups[n]=getSelected().filter(u=>!u.building&&u.owner===0&&!u.ally).map(u=>u.id);toast(controlGroups[n].length?'Группа '+n+' назначена: '+controlGroups[n].length+' ед.':'Выберите собственные войска для группы.')}else{selected=(controlGroups[n]||[]).filter(id=>units.some(u=>u.id===id&&!u.dead&&u.owner===0&&!u.ally));updateSelection();toast(selected.length?'Выбрана группа '+n+': '+selected.length+' ед.':'Группа '+n+' пуста.')}return}
-const cmds={KeyM:'move',KeyA:'attack',KeyG:'guard',KeyR:'repair'};if(cmds[e.code])command(cmds[e.code]);if(e.code==='KeyQ')selectArmy();if(e.code==='Digit1')queueUnit('soldier');if(e.code==='Digit2')queueUnit('tank');if(e.code==='Digit3')queueUnit('harvester');
+const cmds={KeyM:'move',KeyA:'attack',KeyG:'guard',KeyR:'repair',KeyX:'scatter'};if(cmds[e.code])command(cmds[e.code]);if(e.code==='KeyZ')activatePalace('thumper');if(e.code==='KeyF')activatePalace('fremen');if(e.code==='KeyQ')selectArmy();if(e.code==='Digit1')queueUnit('soldier');if(e.code==='Digit2')queueUnit('tank');if(e.code==='Digit3')queueUnit('harvester');
 });
 window.addEventListener('keyup',e=>keys.delete(e.code));window.addEventListener('blur',()=>{keys.clear();if(G?.state==='playing'&&!modalOpen)togglePause()});
 if(window.matchMedia('(pointer: coarse)').matches)$('controlHint').textContent='Касание — выбор / приказ';
 function moveUnit(u,p,dt,mult=1){
 let dx=p.x-u.x,dy=p.y-u.y,len=Math.hypot(dx,dy);if(len<4)return true;
 let vx=dx/len,vy=dy/len,d=UNIT[u.kind];
+if(G.storm&&G.storm.phase==='active'&&Math.abs(u.x-G.storm.x)<G.storm.w/2){mult*=d.group==='air'?.55:d.group==='vehicle'?.82:1}
 if(d.group!=='air'){
 for(let b of buildings){if(b.dead||dist(p,b)<95)continue;let r=Math.max(BUILD[b.kind].w,BUILD[b.kind].h)*.52+20,bd=dist(u,b);if(bd<r&&bd>1){let f=(r-bd)/r*2.5;vx+=(u.x-b.x)/bd*f;vy+=(u.y-b.y)/bd*f}}
 for(let v of units){if(v===u||v.dead||UNIT[v.kind].group==='air')continue;let dis=dist(u,v),r=d.group==='infantry'?14:29;if(dis<r&&dis>.5){vx+=(u.x-v.x)/dis*(r-dis)/r*1.2;vy+=(u.y-v.y)/dis*(r-dis)/r*1.2}}
 }
 let vl=Math.hypot(vx,vy)||1,step=Math.min(d.speed*mult*dt,len);u.x=clamp(u.x+vx/vl*step,24,WW-24);u.y=clamp(u.y+vy/vl*step,24,WH-24);let a=Math.atan2(vy,vx),diff=Math.atan2(Math.sin(a-u.angle),Math.cos(a-u.angle));u.angle+=diff*Math.min(1,dt*6);return len<10;
 }
-function damage(target,amount,sourceOwner){
-if(target.dead||(target.emerge??1)<1)return;target.hp-=amount;target.flash=.12;
+function awardXP(attacker,xp){
+if(!attacker||attacker.dead||attacker.building||!UNIT[attacker.kind]?.damage||xp<=0)return;
+attacker.xp=(attacker.xp||0)+xp;
+let oldRank=attacker.rank||0,newRank=attacker.xp>=500?3:attacker.xp>=260?2:attacker.xp>=100?1:0;
+if(newRank>oldRank){
+attacker.rank=newRank;let bonus=attacker.max*.12;attacker.max+=bonus;attacker.hp=Math.min(attacker.max,attacker.hp+bonus*1.5);
+effects.push({type:'text',x:attacker.x,y:attacker.y-30,text:'★'.repeat(newRank),life:1.8,max:1.8});
+if(attacker.owner===0)sound('ready');
+if(selected.includes(attacker.id))updateSelection();
+}
+}
+function damage(target,amount,sourceOwner,dmgType='shell',attacker=null){
+if(target.dead||(target.emerge??1)<1)return;
+let armor=target.building?'building':(UNIT[target.kind]?.armor||'light');
+let mult=ARMOR_MULT[dmgType]?.[armor]??1;
+let rankRed=target.building?1:(1-(target.rank||0)*.08);
+let finalDmg=amount*mult*rankRed;
+if(finalDmg<=0)return;
+target.hp-=finalDmg;target.flash=.12;
+if(attacker&&target.owner!==attacker.owner)awardXP(attacker,Math.round(finalDmg*.16));
 if(target.hp<=0){
 target.dead=true;sound('boom');
 effects.push({type:'explosion',x:target.x,y:target.y,life:.9,max:.9,size:target.building?65:28});
+if(attacker&&target.owner!==attacker.owner)awardXP(attacker,Math.max(40,Math.round((target.building?180:(UNIT[target.kind]?.price||100))*.65)));
 if(target.owner===1){G.kills++;G.score+=target.building?300:100;G.credits+=target.building?75:20}
-if(target.kind==='devastator'){for(let v of allEntities())if(v!==target&&v.owner!==target.owner&&dist(v,target)<95)damage(v,100,target.owner)}
-if(target.id===G.enemyHQ)toast('Командный центр противника уничтожен!');
+if(target.kind==='devastator'){for(let v of allEntities())if(v!==target&&v.owner!==target.owner&&dist(v,target)<95)damage(v,100,target.owner,'explosive',null)}
+if(target.id===G.enemyHQ&&target.owner===1)toast('Командный центр противника уничтожен!');
 if(target.kind==='harvester'&&target.owner===0)toast('Харвестер потерян! Закажите новый комбайн.',true);
 if(target.building&&target.owner===0)toast(BUILD[target.kind].name+' уничтожен.',true);
 if(selected.includes(target.id)){selected=selected.filter(id=>id!==target.id);updateSelection()}
 }
 }
 function shoot(u,target,d){
-u.cool=d.rate||1.6;u.turretAngle=Math.atan2(target.y-u.y,target.x-u.x);
-let kind=u.kind==='sonic'?'sonic':['trooper','troopers','launcher','ornithopter','deviator'].includes(u.kind)?'rocket':'shell';
-projectiles.push({x:u.x+Math.cos(u.turretAngle)*21,y:u.y+Math.sin(u.turretAngle)*21,target,damage:d.damage*(u.owner===1?enemyDamageFactor():!u.building&&!u.ally?1+.2*G.upgrades.weapons:1),owner:u.owner,kind,speed:kind==='sonic'?520:kind==='rocket'?360:610,life:3});
+u.cool=(d.rate||1.6)/(1+(u.rank||0)*.08);u.turretAngle=Math.atan2(target.y-u.y,target.x-u.x);
+if(!u.building&&UNIT[u.kind]?.cloaked)u.stealthTimer=2.6;
+let dmgType=d.dmgType||'shell';
+let pKind=u.kind==='sonic'?'sonic':u.kind==='flametank'?'flame':u.kind==='deviator'?'deviator':u.kind==='bomber'?'bomb':dmgType==='laser'?'laser':dmgType==='flak'?'flak':(['trooper','troopers','launcher','ornithopter'].includes(u.kind)||u.kind==='rocketTurret')?'rocket':'shell';
+let dmg=d.damage*(u.owner===1?enemyDamageFactor():!u.building&&!u.ally?1+.2*G.upgrades.weapons:1)*(1+(u.rank||0)*.16);
+if(u.kind==='bomber'){
+let ang=u.turretAngle;
+for(let off of [-36,0,36]){
+projectiles.push({x:u.x,y:u.y,target,tx:clamp(target.x+Math.cos(ang)*off,25,WW-25),ty:clamp(target.y+Math.sin(ang)*off,25,WH-25),damage:dmg*.48,owner:u.owner,kind:'bomb',dmgType:'explosive',splash:d.splash||62,burn:0,speed:330,life:2.5,attackerId:u.id});
+}
+}else{
+projectiles.push({x:u.x+Math.cos(u.turretAngle)*21,y:u.y+Math.sin(u.turretAngle)*21,target,damage:dmg,owner:u.owner,kind:pKind,dmgType,splash:d.splash||0,burn:d.burn||0,speed:pKind==='sonic'?520:pKind==='laser'?740:pKind==='flak'?680:pKind==='flame'?410:pKind==='rocket'||pKind==='deviator'?360:610,life:3,attackerId:u.building?0:u.id});
+}
 effects.push({type:'muzzle',x:u.x+Math.cos(u.turretAngle)*30,y:u.y+Math.sin(u.turretAngle)*30,life:.12,max:.12});
 if(Math.random()>.55)sound('shot');
 }
-function closestEnemy(u,range){
+function closestEnemy(u,range,d){
 let best=null,bestD=range;
-for(let v of allEntities()){if(v.owner===u.owner||(v.emerge??1)<1)continue;let dd=dist(u,v)-(v.building?Math.min(BUILD[v.kind].w,BUILD[v.kind].h)*.3:0);if(dd<bestD){bestD=dd;best=v}}
+if(u.kind==='saboteur'){
+for(let b of buildings){if(b.dead||b.owner===u.owner||(b.emerge??1)<1)continue;let dd=dist(u,b);if(dd<bestD){bestD=dd;best=b}}
+return best;
+}
+if(u.kind==='engineer'){
+for(let b of buildings){if(b.dead||b.owner===u.owner||(b.emerge??1)<1)continue;let dd=dist(u,b)-(b.hp/b.max<=.6?240:0);if(dd<bestD){bestD=dd;best=b}}
+return best;
+}
+for(let v of allEntities()){
+if(v.owner===u.owner||(v.emerge??1)<1)continue;
+if(!v.building&&UNIT[v.kind]?.group==='air'&&!d?.antiAir)continue;
+if(!v.building&&!isVisibleTo(v,u.owner))continue;
+let dd=dist(u,v)-(v.building?Math.min(BUILD[v.kind].w,BUILD[v.kind].h)*.3:0);
+if(dd<bestD){bestD=dd;best=v}
+}
 return best;
 }
 function updateHarvester(u,dt){
 let refs=buildings.filter(b=>!b.dead&&b.owner===u.owner&&b.kind==='refinery'&&b.build>=1);if(!refs.length)return;
-let ref=refs.reduce((a,b)=>dist(u,a)<dist(u,b)?a:b),p=spicePatches[u.spiceIndex],boost=units.some(v=>!v.dead&&v.owner===u.owner&&v.kind==='carryall'&&dist(u,v)<260)?1.65:1;
+const sp=allSpicePatches();if(u.spiceIndex>=sp.length)u.spiceIndex=0;
+let ref=refs.reduce((a,b)=>dist(u,a)<dist(u,b)?a:b),p=sp[u.spiceIndex],boost=units.some(v=>!v.dead&&v.owner===u.owner&&v.kind==='carryall'&&dist(u,v)<260)?1.65:1;
 if(u.harvestState==='collect'){
 let spot={x:p.x+Math.sin(u.id*8)*p.rx*.4,y:p.y+Math.cos(u.id*5)*p.ry*.4};
 if(dist(u,spot)>29)moveUnit(u,spot,dt,boost);
@@ -523,7 +658,7 @@ else{u.cargo=Math.min(250,u.cargo+dt*37*(u.owner===0?1+.25*G.upgrades.harvest:1)
 }else{
 let dest={x:ref.x+BUILD.refinery.w/2+34,y:ref.y+20};
 if(dist(u,dest)>30)moveUnit(u,dest,dt,boost);
-else{let cargo=Math.floor(u.cargo);if(u.owner===0){G.credits+=cargo;G.harvested+=cargo;G.score+=Math.floor(cargo*.1)}else G.enemyCredits+=cargo;effects.push({type:'text',x:ref.x,y:ref.y-65,text:'+'+cargo+' ◇',life:2,max:2});u.cargo=0;u.harvestState='collect';sound('ready')}
+else{let siloCount=Math.min(3,buildings.filter(b=>!b.dead&&b.owner===u.owner&&b.kind==='silo'&&b.build>=1).length);let cargo=Math.round(Math.floor(u.cargo)*(1+siloCount*.15));if(u.owner===0){G.credits+=cargo;G.harvested+=cargo;G.score+=Math.floor(cargo*.1)}else G.enemyCredits+=cargo;effects.push({type:'text',x:ref.x,y:ref.y-65,text:'+'+cargo+' ◇',life:2,max:2});u.cargo=0;u.harvestState='collect';sound('ready')}
 }
 }
 // The enemy builds and pays from its own economy; attacks use only produced units.
@@ -534,12 +669,18 @@ function enemyBuildPosition(kind){
   if(p.x>d.w&&p.x<WW-d.w&&p.y>d.h&&p.y<WH-d.h&&!buildings.some(b=>!b.dead&&Math.abs(p.x-b.x)<(d.w+BUILD[b.kind].w)/2+20&&Math.abs(p.y-b.y)<(d.h+BUILD[b.kind].h)/2+20))return p;
  }return null;
 }
+function enemyHouseRoster(){
+ let name=G.mission==='campaign'?CAMPAIGN[G.campaignIndex].enemy:G.mission==='survival'?'Император':'Харконнены';
+ if(name.includes('Ордос')&&name.includes('Харконнен'))return ['raider','troopers','quad','tank','flametank','deviator','saboteur','stealth','aatank','siege'];
+ if(name.includes('Ордос'))return ['raider','troopers','quad','tank','deviator','saboteur','stealth','ornithopter'];
+ if(name.includes('Император'))return ['sardaukar','sniper','tank','flametank','aatank','siege','hovertank','bomber','devastator'];
+ return ['troopers','quad','tank','flametank','aatank','siege','launcher','devastator'];
+}
 function updateEnemy(dt){
  if(!buildings.some(b=>b.owner===1&&b.kind==='yard'&&!b.dead&&(b.emerge??1)>=1))return;
  G.enemyBuildCheck-=dt;G.enemyTrainCheck-=dt;
  if(G.enemyBuildCheck<=0){G.enemyBuildCheck=Math.max(1.5,3-enemyLevel()*.15);
-  const plan=['refinery','barracks','factory','radar','turret'];
-  // Replace destroyed infrastructure. A second windtrap prevents a power shortage.
+  const plan=['refinery','silo','barracks','factory','radar','turret','repairbay','rocketTurret','palace'];
   if(powerFor(1)<1&&!buildings.some(b=>b.owner===1&&!b.dead&&b.kind==='wind'&&b.build<1))plan.unshift('wind');
   for(const kind of plan){let exists=buildings.some(b=>b.owner===1&&!b.dead&&b.kind===kind);
    if(kind==='wind'&&powerFor(1)<1)exists=false;
@@ -548,9 +689,9 @@ function updateEnemy(dt){
   }
  }
  if(G.enemyTrainCheck<=0){G.enemyTrainCheck=Math.max(1,2-enemyLevel()*.1);
-  if(G.enemyQueue.length<3&&units.filter(u=>u.owner===1&&!u.dead).length+G.enemyQueue.length<22+enemyLevel()*2){
+  if(G.enemyQueue.length<3&&units.filter(u=>u.owner===1&&!u.dead).length+G.enemyQueue.length<22+enemyLevel()*2+(G.mission==='survival'?4:0)){
    let hasHarvester=units.some(u=>u.owner===1&&!u.dead&&u.kind==='harvester')||G.enemyQueue.some(q=>q.kind==='harvester');
-   let choices=!hasHarvester?['harvester']:['troopers','quad','tank','siege','devastator'];
+   let choices=!hasHarvester?['harvester']:enemyHouseRoster();
    choices=choices.filter(k=>!missingTech(1,k).length&&G.enemyCredits>=UNIT[k].price);
    if(choices.length){let kind=choices[Math.floor(Math.random()*choices.length)];G.enemyCredits-=UNIT[kind].price;G.enemyQueue.push({kind,time:0,total:UNIT[kind].time||6})}
   }
@@ -559,47 +700,114 @@ function updateEnemy(dt){
 }
 function spawnWave(){
  if(!buildings.some(b=>b.owner===1&&b.kind==='yard'&&!b.dead&&(b.emerge??1)>=1))return;
- G.wave++;G.nextWave=G.time+Math.max(22,40-enemyLevel()*2);
+ G.wave++;G.nextWave=G.time+Math.max(20,(G.mission==='survival'?30:40)-enemyLevel()*2);
  let troops=units.filter(u=>u.owner===1&&!u.dead&&UNIT[u.kind].damage&&u.order==='guard');
  if(!troops.length)return;
  for(const u of troops){u.order='attack';u.target=buildings.find(b=>!b.dead&&b.owner===0&&b.kind==='yard')}
- toast((G.mission==='campaign'?CAMPAIGN[G.campaignIndex].enemy:'Харконнены')+' атакуют: '+troops.length+' боевых единиц.',true);
+ toast((G.mission==='campaign'?CAMPAIGN[G.campaignIndex].enemy:G.mission==='survival'?'Император':'Харконнены')+' атакуют: '+troops.length+' боевых единиц.',true);
+}
+function engineerAction(u,b){
+ if(!b||b.dead||(b.emerge??1)<1)return;
+ if(b.owner===u.owner){
+  b.hp=Math.min(b.max,b.hp+320);b.flash=.25;effects.push({type:'text',x:b.x,y:b.y-30,text:'+320 РЕМОНТ',life:1.8,max:1.8});u.dead=true;sound('ready');
+ }else if(b.hp/b.max<=.6){
+  b.owner=u.owner;b.hp=Math.max(b.hp,b.max*.35);b.repair=false;b.cool=0;b.flash=.3;
+  if(b.owner===0){delete b.houseLabel;toast(BUILD[b.kind].name+' захвачен инженером!');sound('ready')}
+  effects.push({type:'text',x:b.x,y:b.y-38,text:'ЗАХВАЧЕНО!',life:2.2,max:2.2});u.dead=true;
+ }else{
+  damage(b,260,u.owner,'explosive',null);effects.push({type:'explosion',x:u.x,y:u.y,life:.6,max:.6,size:38});
+  effects.push({type:'text',x:b.x,y:b.y-35,text:'ПОДРЫВ −260',life:1.8,max:1.8});u.dead=true;sound('boom');
+ }
+ if(selected.includes(u.id)){selected=selected.filter(id=>id!==u.id);updateSelection()}
 }
 function update(dt){
 G.time+=dt;let energy=power();
+G.thumperCd=Math.max(0,(G.thumperCd||0)-dt);G.fremenCd=Math.max(0,(G.fremenCd||0)-dt);
 if(camera.zoom>1){let v=450*dt/camera.zoom;if(keys.has('ArrowLeft'))camera.x-=v;if(keys.has('ArrowRight'))camera.x+=v;if(keys.has('ArrowUp'))camera.y-=v;if(keys.has('ArrowDown'))camera.y+=v;camera.x=clamp(camera.x,WW*.5/camera.zoom,WW-WW*.5/camera.zoom);camera.y=clamp(camera.y,WH*.5/camera.zoom,WH-WH*.5/camera.zoom)}
 if(G.queue.length){let q=G.queue[0],factoryCount=buildings.filter(b=>!b.owner&&!b.dead&&b.kind==='factory'&&b.build>=1).length;if(!missingTech(0,q.kind).length)q.time+=dt*energy*(1+Math.max(0,factoryCount-1)*.2)*(1+.2*G.upgrades.production);if(q.time>=q.total&&!missingTech(0,q.kind).length){let producer=UNIT[q.kind].group==='infantry'?'barracks':'factory';let spawn=buildings.find(b=>!b.dead&&!b.owner&&b.kind===producer&&b.build>=1);if(spawn){let u=addUnit(q.kind,spawn.x+65+Math.random()*35,spawn.y+60+Math.random()*40);u.move={x:spawn.x+130+Math.random()*70,y:spawn.y+50+Math.random()*80};if(q.kind!=='harvester'&&q.kind!=='carryall')u.order='move';toast(UNIT[q.kind].name+' готов к выполнению приказов.');sound('ready')}G.queue.shift()}}
 for(let b of buildings){
 if(b.dead)continue;b.flash=Math.max(0,b.flash-dt);b.cool-=dt;if((b.emerge??1)<1){b.emerge=Math.min(1,b.emerge+dt/12);continue}
+if(b.burn>0){b.burn-=dt;damage(b,14*dt,b.burnOwner,'flame',null);if(b.dead)continue}
 if(b.build<1){let buildSpeed=b.owner===0?energy:powerFor(1);b.build=Math.min(1,b.build+dt/9*buildSpeed);b.hp=Math.min(b.max,b.hp+b.max*.8*dt/9*buildSpeed);if(b.build===1){if(!b.owner){sound('ready');toast(BUILD[b.kind].name+' — строительство завершено.')}if(b.kind==='refinery'){let h=addUnit('harvester',b.x+(b.owner?-90:90),b.y+20,b.owner);}}}
-if((b.kind==='turret'||b.kind==='rocketTurret')&&b.build>=1){let target=closestEnemy(b,b.kind==='rocketTurret'?370:275);if(target){b.turretAngle=Math.atan2(target.y-b.y,target.x-b.x);if(b.cool<=0){shoot(b,target,{damage:b.kind==='rocketTurret'?60:34,rate:b.kind==='rocketTurret'?2.4:(b.owner?1.8:1.65/energy)})}}}
-if(b.kind==='repairbay'&&b.build>=1){let u=units.find(u=>!u.dead&&u.owner===b.owner&&UNIT[u.kind].group==='vehicle'&&u.hp<u.max&&dist(u,b)<110);if(u)u.hp=Math.min(u.max,u.hp+8*dt*powerFor(b.owner))}
+if((b.kind==='turret'||b.kind==='rocketTurret')&&b.build>=1){let spec={damage:b.kind==='rocketTurret'?60:34,rate:b.kind==='rocketTurret'?2.4:(b.owner?1.8:1.65/energy),antiAir:b.kind==='rocketTurret',dmgType:b.kind==='rocketTurret'?'rocket':'shell'};let target=closestEnemy(b,b.kind==='rocketTurret'?370:275,spec);if(target){b.turretAngle=Math.atan2(target.y-b.y,target.x-b.x);if(b.cool<=0)shoot(b,target,spec)}}
+if(b.kind==='repairbay'&&b.build>=1){let u=units.find(u=>!u.dead&&u.owner===b.owner&&UNIT[u.kind].group==='vehicle'&&u.hp<u.max&&dist(u,b)<110);if(u)u.hp=Math.min(u.max,u.hp+10*dt*powerFor(b.owner))}
 if(b.repair&&G.credits>=3*dt&&b.hp<b.max){G.credits-=3*dt;b.hp=Math.min(b.max,b.hp+12*dt);if(b.hp>=b.max)b.repair=false}
 }
 for(let u of units){
-if(u.dead)continue;let d=UNIT[u.kind];u.cool-=dt;u.flash=Math.max(0,u.flash-dt);
+if(u.dead)continue;let d=UNIT[u.kind];u.cool-=dt;u.flash=Math.max(0,u.flash-dt);u.stealthTimer=Math.max(0,(u.stealthTimer||0)-dt);
+if(u.rank>=3&&u.hp<u.max)u.hp=Math.min(u.max,u.hp+3.5*dt);
+if(u.burn>0){u.burn-=dt;damage(u,14*dt,u.burnOwner,'flame',null);if(u.dead)continue}
+if(u.deviatedTimer>0){u.deviatedTimer-=dt;if(u.deviatedTimer<=0){u.owner=u.deviatedFrom;u.target=null;u.order='guard';selected=selected.filter(id=>id!==u.id);updateSelection()}}
+if(G.storm&&G.storm.phase==='active'&&d.group==='infantry'&&Math.abs(u.x-G.storm.x)<G.storm.w/2){if(!buildings.some(b=>!b.dead&&b.owner===u.owner&&dist(b,u)<95))damage(u,4.5*dt,-1,'bullet',null);if(u.dead)continue}
+if(d.healRadius){for(let v of units)if(v!==u&&!v.dead&&v.owner===u.owner&&v.hp<v.max&&dist(u,v)<=d.healRadius)v.hp=Math.min(v.max,v.hp+d.healRate*dt)}
 if(u.repair&&u.owner===0&&G.credits>=dt*3){G.credits-=dt*3;u.hp=Math.min(u.max,u.hp+12*dt);if(u.hp>=u.max)u.repair=false}
 if(u.kind==='harvester'&&u.order==='harvest'){updateHarvester(u,dt);continue}
 if(u.kind==='carryall'&&!u.move){let h=units.filter(v=>!v.dead&&v.kind==='harvester'&&v.owner===u.owner).sort((a,b)=>dist(u,a)-dist(u,b))[0];if(h&&dist(u,h)>85)moveUnit(u,{x:h.x-55,y:h.y-50},dt);continue}
 if(u.target?.dead)u.target=null;
+if(u.target&&!u.target.building&&!isVisibleTo(u.target,u.owner))u.target=null;
+if(u.kind==='engineer'){
+ if((u.order==='engineer'||u.order==='attack')&&u.target&&u.target.building){
+  let edge=Math.max(BUILD[u.target.kind].w,BUILD[u.target.kind].h)*.55+22;
+  if(dist(u,u.target)<=edge)engineerAction(u,u.target);
+  else moveUnit(u,u.target,dt);
+  continue;
+ }
+ if(u.order==='advance'){let b=closestEnemy(u,280,d);if(b){u.target=b;u.order='attack'}}
+}
+if(u.kind==='saboteur'){
+ let b=u.target?.building?u.target:closestEnemy(u,WW+WH,d);
+ if(b){u.target=b;let edge=Math.max(BUILD[b.kind].w,BUILD[b.kind].h)*.55+22;if(dist(u,b)<=edge){damage(b,450,u.owner,'explosive',null);if(!b.dead&&b.owner===0)toast('Саботажник Ордосов подорвал '+BUILD[b.kind].name+'!',true);effects.push({type:'explosion',x:u.x,y:u.y,life:.7,max:.7,size:44});u.dead=true;sound('boom')}else moveUnit(u,b,dt)}
+ continue;
+}
 let attackTarget=null,desired=null;
-if(d.damage){
-attackTarget=closestEnemy(u,d.range+15);
-if(u.order==='attack'&&u.target){if(dist(u,u.target)>d.range+(u.target.building?25:0))desired=u.target;else attackTarget=u.target}
-else if((u.owner===1||u.ally)&&u.order==='attack'){u.target=closestEnemy(u,WW+WH);if(u.target)desired=u.target}
-if(u.order==='advance'){let nearby=closestEnemy(u,d.range+90);if(nearby){attackTarget=nearby;if(dist(u,nearby)>d.range)desired=nearby}}
+if(d.damage&&!d.capture&&u.kind!=='saboteur'){
+attackTarget=closestEnemy(u,d.range+15,d);
+if(u.order==='attack'&&u.target){if(dist(u,u.target)>d.range+(u.target.building?25:0))desired=u.target;else if(u.target.building||isVisibleTo(u.target,u.owner)&&(d.antiAir||UNIT[u.target.kind]?.group!=='air'))attackTarget=u.target}
+else if((u.owner===1||u.ally)&&u.order==='attack'){u.target=closestEnemy(u,WW+WH,d);if(u.target)desired=u.target}
+if(u.order==='advance'){let nearby=closestEnemy(u,d.range+90,d);if(nearby){attackTarget=nearby;if(dist(u,nearby)>d.range)desired=nearby}}
 if(attackTarget){u.turretAngle=Math.atan2(attackTarget.y-u.y,attackTarget.x-u.x);if(dist(u,attackTarget)<=d.range+(attackTarget.building?38:15)&&u.cool<=0)shoot(u,attackTarget,d)}
 }
 if(desired)moveUnit(u,desired,dt);
-else if(u.move){if(moveUnit(u,u.move,dt)){u.move=null;if(u.kind==='harvester'){u.order='harvest';u.spiceIndex=spicePatches.reduce((a,p,i)=>dist(p,u)<dist(spicePatches[a],u)?i:a,0)}else u.order='guard'}}
+else if(u.move){if(moveUnit(u,u.move,dt)){u.move=null;if(u.kind==='harvester'){u.order='harvest';const sp=allSpicePatches();u.spiceIndex=sp.reduce((a,p,i)=>dist(p,u)<dist(sp[a],u)?i:a,0)}else u.order='guard'}}
 if(!attackTarget)u.turretAngle=u.angle;
 }
-for(let p of projectiles){p.life-=dt;if(p.target.dead){p.life=0;continue}let dx=p.target.x-p.x,dy=p.target.y-p.y,len=Math.hypot(dx,dy);p.angle=Math.atan2(dy,dx);if(len<p.speed*dt+6){damage(p.target,p.damage,p.owner);if(p.kind==='sonic'){for(let v of allEntities())if(v!==p.target&&v.owner!==p.owner&&dist(v,p.target)<65)damage(v,p.damage*.4,p.owner);effects.push({type:'sonic',x:p.target.x,y:p.target.y,life:.45,max:.45})}else effects.push({type:'hit',x:p.target.x,y:p.target.y,life:.25,max:.25});p.life=0}else{p.x+=dx/len*p.speed*dt;p.y+=dy/len*p.speed*dt}}
+for(let p of projectiles){p.life-=dt;
+let tx=p.kind==='bomb'?p.tx:p.target.x,ty=p.kind==='bomb'?p.ty:p.target.y;
+if(p.kind!=='bomb'&&p.target.dead){p.life=0;continue}
+let dx=tx-p.x,dy=ty-p.y,len=Math.hypot(dx,dy);p.angle=Math.atan2(dy,dx);
+if(len<p.speed*dt+6){
+let atk=p.attackerId?units.find(x=>x.id===p.attackerId):null;
+if(p.kind==='bomb'){
+ effects.push({type:'explosion',x:tx,y:ty,life:.65,max:.65,size:38});sound('boom');
+ for(let v of allEntities())if(v.owner!==p.owner&&dist(v,{x:tx,y:ty})<(p.splash||62))damage(v,p.damage,p.owner,'explosive',atk);
+}else if(p.kind==='deviator'){
+ damage(p.target,p.damage*.4,p.owner,'rocket',atk);
+ if(!p.target.dead&&!p.target.building&&p.target.kind!=='emperor'&&p.target.kind!=='worm'){
+  if(!p.target.deviatedTimer||p.target.deviatedTimer<=0)p.target.deviatedFrom=p.target.owner;
+  p.target.owner=p.owner;p.target.deviatedTimer=9;p.target.target=null;p.target.order='guard';
+  selected=selected.filter(id=>id!==p.target.id);updateSelection();
+  effects.push({type:'text',x:p.target.x,y:p.target.y-28,text:'ПЕРЕХВАТ!',life:1.8,max:1.8});
+ }
+}else{
+ damage(p.target,p.damage,p.owner,p.dmgType||'shell',atk);
+ if(p.burn>0&&!p.target.dead){p.target.burn=p.burn;p.target.burnOwner=p.owner}
+ if(p.kind==='sonic'||p.splash>0){
+  let rad=p.splash||65,ratio=p.kind==='sonic'?.4:.55;
+  for(let v of allEntities())if(v!==p.target&&v.owner!==p.owner&&dist(v,p.target)<rad){damage(v,p.damage*ratio,p.owner,p.dmgType||'shell',atk);if(p.burn>0&&!v.dead){v.burn=p.burn*.75;v.burnOwner=p.owner}}
+  effects.push({type:p.kind==='sonic'?'sonic':'explosion',x:p.target.x,y:p.target.y,life:.45,max:.45,size:p.kind==='flame'?26:30});
+ }else effects.push({type:'hit',x:p.target.x,y:p.target.y,life:.25,max:.25});
+}
+p.life=0;
+}else{p.x+=dx/len*p.speed*dt;p.y+=dy/len*p.speed*dt}}
 projectiles=projectiles.filter(p=>p.life>0);
 if(G.marketQueue.length&&hasBuilding(0,'starport')){let q=G.marketQueue[0];q.time+=dt*powerFor(0);if(q.time>=q.total){let port=buildings.find(b=>!b.dead&&b.owner===0&&b.kind==='starport'&&b.build>=1);if(port){addUnit(q.kind,port.x+75,port.y+50);G.marketQueue.shift();toast('CHOAM доставила: '+UNIT[q.kind].name)}}}
 if(G.mission!=='campaign')updateStory();updateEnemy(dt);if(G.time>=G.nextWave)spawnWave();
-if(G.time>=G.nextWorm&&!G.worm){let target=units.find(u=>!u.dead&&u.owner===0&&u.kind==='harvester'&&spicePatches.some(p=>dist(p,u)<p.rx+40));G.nextWorm=G.time+65;if(target){G.worm={x:target.x,y:target.y,t:0,hit:false};toast('Сейсмическая активность! Уведите технику из отмеченной зоны.',true)}}
-if(G.worm){let w=G.worm;w.t+=dt;if(w.t>=7&&!w.hit){w.hit=true;sound('boom');for(let u of units)if(!u.dead&&UNIT[u.kind].group!=='air'&&dist(u,w)<80)damage(u,190,-1);effects.push({type:'explosion',x:w.x,y:w.y,life:1,max:1,size:80})}if(w.t>10)G.worm=null}
+if(G.time>=G.nextBloom&&(G.blooms||[]).length<3){G.nextBloom=G.time+42;let bx=260+Math.random()*(WW-520),by=180+Math.random()*(WH-360);if(!buildings.some(b=>!b.dead&&dist(b,{x:bx,y:by})<160)&&!allSpicePatches().some(sp=>dist(sp,{x:bx,y:by})<sp.rx+60)){G.blooms.push({x:bx,y:by,timer:55});toast('Обнаружен спайсовый гейзер — наедьте на него для выброса пряности.')}}
+for(let i=(G.blooms||[]).length-1;i>=0;i--){let bl=G.blooms[i];bl.timer-=dt;if(bl.timer<=0||units.some(u=>!u.dead&&UNIT[u.kind].group!=='air'&&dist(u,bl)<34)){G.blooms.splice(i,1);G.extraSpice.push({x:bl.x,y:bl.y,rx:95,ry:72});effects.push({type:'explosion',x:bl.x,y:bl.y,life:.9,max:.9,size:52});effects.push({type:'text',x:bl.x,y:bl.y-25,text:'+НОВЫЙ СПАЙС',life:2.2,max:2.2});sound('boom');toast('Спайсовый гейзер прорвался! На карте появилось новое месторождение.')}}
+if(G.time>=G.nextStorm&&!G.storm){G.nextStorm=G.time+(G.mission==='survival'?38:75);G.storm={x:260+Math.random()*(WW-520),w:290,vx:(Math.random()>.5?1:-1)*46,t:0,dur:22,phase:'warn'};toast('Внимание: приближается песчаная буря! Укройте пехоту у зданий.',true)}
+if(G.storm){G.storm.t+=dt;if(G.storm.t>=7){G.storm.phase='active';G.storm.x=clamp(G.storm.x+G.storm.vx*dt,120,WW-120)}if(G.storm.t>=G.storm.dur)G.storm=null}
+if(G.time>=G.nextWorm&&!G.worm){const sp=allSpicePatches();let target=units.find(u=>!u.dead&&u.owner===0&&u.kind==='harvester'&&sp.some(p=>dist(p,u)<p.rx+40));G.nextWorm=G.time+65;if(target){G.worm={x:target.x,y:target.y,t:0,hit:false,radius:80,dmg:190};toast('Сейсмическая активность! Уведите технику из отмеченной зоны.',true)}}
+if(G.worm){let w=G.worm;w.t+=dt;if(w.t>=7&&!w.hit){w.hit=true;sound('boom');for(let u of units)if(!u.dead&&UNIT[u.kind].group!=='air'&&!UNIT[u.kind].hover&&dist(u,w)<(w.radius||80))damage(u,w.dmg||190,-1,'explosive',null);effects.push({type:'explosion',x:w.x,y:w.y,life:1,max:1,size:w.radius||80})}if(w.t>10)G.worm=null}
 effects.forEach(e=>e.life-=dt);effects=effects.filter(e=>e.life>0);units=units.filter(u=>!u.dead);buildings=buildings.filter(b=>!b.dead);
 if(!buildings.some(b=>!b.owner&&b.kind==='yard'))endGame(false);
 else if(G.mission==='campaign'&&!G.transitionBlocked&&campaignComplete())completeCampaignMission();
@@ -678,8 +886,8 @@ function advanceCampaign(){
 $('makeRoom').onclick=()=>{G.state='playing';$('campaignTransition').style.display='none';$('retryTransition').style.display='flex';toast('Освободите территорию и нажмите «Начать следующую миссию».')};
 $('retryTransition').onclick=()=>{if(G.state!=='playing')return;G.state='transition';G.transitionBlocked=false;G.transitionRemaining=0;$('retryTransition').style.display='none';$('makeRoom').style.display='none';$('campaignTransition').style.display='flex'};
 function updateCampaignTransition(dt){if(G.transitionBlocked)return;G.transitionRemaining-=dt;$('transitionTimer').textContent='Следующая миссия начнётся через '+Math.max(0,Math.ceil(G.transitionRemaining))+' сек.';if(G.transitionRemaining<=0)advanceCampaign()}
-const MISSIONS={campaign:{name:'Кампания Атрейдесов',harvest:1000,objective:'Квота спайса',description:'Девять миссий Атрейдесов. Следующая начнётся автоматически после победы.'},conquest:{name:'Битва за Арракин',harvest:2000,objective:'Уничтожить базу врага',description:'Разгромьте строительный двор Харконненов и поставьте 2 000 спайса.'},economy:{name:'Поставка Гильдии',harvest:3000,objective:'Продержаться 4 минуты',description:'Наладьте добычу 3 000 спайса и удерживайте базу 4 минуты.'},defense:{name:'Оборона рубежа',harvest:1500,objective:'12 целей или штаб',description:'Уничтожьте 12 вражеских целей или их штаб и соберите 1 500 спайса.'}};
-function missionOtherDone(){return G.mission==='conquest'?!buildings.some(b=>b.id===G.enemyHQ&&!b.dead):G.mission==='economy'?G.time>=240:G.kills>=12||!buildings.some(b=>b.id===G.enemyHQ&&!b.dead)}
+const MISSIONS={campaign:{name:'Кампания Атрейдесов',harvest:1000,objective:'Квота спайса',description:'Девять миссий Атрейдесов. Следующая начнётся автоматически после победы.'},conquest:{name:'Битва за Арракин',harvest:2000,objective:'Уничтожить базу врага',description:'Разгромьте строительный двор Харконненов и поставьте 2 000 спайса.'},economy:{name:'Поставка Гильдии',harvest:3000,objective:'Продержаться 4 минуты',description:'Наладьте добычу 3 000 спайса и удерживайте базу 4 минуты.'},defense:{name:'Оборона рубежа',harvest:1500,objective:'12 целей или штаб',description:'Уничтожьте 12 вражеских целей или их штаб и соберите 1 500 спайса.'},survival:{name:'Песчаный шторм · Выживание',harvest:2500,objective:'Выстоять 5 минут',description:'Частые песчаные бури, элитные волны Императора и квота 2 500 спайса.'}};
+function missionOtherDone(){return G.mission==='conquest'?!buildings.some(b=>b.id===G.enemyHQ&&!b.dead&&b.owner===1):G.mission==='economy'?G.time>=240:G.mission==='survival'?G.time>=300:G.kills>=12||!buildings.some(b=>b.id===G.enemyHQ&&!b.dead&&b.owner===1)}
 function missionComplete(){return G.harvested>=MISSIONS[G.mission].harvest&&missionOtherDone()}
 function showMissionDescription(){$('missionDescription').textContent=$('missionSelect').value==='campaign'?'9 миссий на одной карте. Армии сохраняются; число новых баз и сила противника растут. В финале ждёт Император.':MISSIONS[$('missionSelect').value].description}
 $('missionSelect').onchange=()=>{if(G.state==='briefing'){G.mission=$('missionSelect').value;showMissionDescription();updateUI()}};
@@ -703,24 +911,30 @@ let best=score;try{best=Math.max(score,Number(localStorage.getItem('arrakis-best
 $('resultRecord').textContent='ЛИЧНЫЙ РЕКОРД · '+fmt(best)+' ОЧКОВ';sound(won?'ready':'warn');
 }
 function renderEnemyHouses(){
- let names=buildings.filter(b=>b.owner===1&&b.kind==='yard'&&!b.dead).map(b=>b.houseLabel||'Харконнены');if(!names.length)names=[G.mission==='campaign'?CAMPAIGN[G.campaignIndex].enemy:'Харконнены'];
+ let names=buildings.filter(b=>b.owner===1&&b.kind==='yard'&&!b.dead).map(b=>b.houseLabel||'Харконнены');if(!names.length)names=[G.mission==='campaign'?CAMPAIGN[G.campaignIndex].enemy:G.mission==='survival'?'Император':'Харконнены'];
  let keys=[];for(let n of names){if(n.includes('Ордос'))keys.push('ordos');if(n.includes('Харконнен'))keys.push('harkonnen');if(n.includes('Император'))keys.push('imperium')}
  const houses={ordos:{name:'Ордосы',icon:'ordos',color:'#a7ca97'},harkonnen:{name:'Харконнены',icon:'harkonnen',color:'#dc967d'},imperium:{name:'Император',icon:'imperium',color:'#dfc98a'}};
  $('enemyHouses').innerHTML=[...new Set(keys)].map(k=>{let h=houses[k];return '<div title="'+h.name+'" style="display:flex;align-items:center;gap:5px;color:'+h.color+';font-size:9px"><svg style="width:26px;height:26px"><use href="#i-'+h.icon+'"/></svg><span>'+h.name+'</span></div>'}).join('');
 }
 function updateUI(){
 $('alliedStatus').textContent=G.mission==='campaign'?'СОЮЗНИКИ: ФРИМЕНЫ И КОНТРАБАНДИСТЫ · '+units.filter(u=>u.ally&&!u.dead).length:'СОЮЗНИКИ: НЕТ';renderEnemyHouses();updateMusicStatus();power();let cm=G.mission==='campaign'?CAMPAIGN[G.campaignIndex]:null;$('stageStory').innerHTML=cm?'<b>МИССИЯ '+(G.campaignIndex+1)+' / 9 · '+cm.name.toUpperCase()+'</b>'+cm.brief+'<br><span style="color:#d7b770">Угроза '+(G.campaignIndex+1)+'/9 · новые базы: '+(G.campaignIndex?enemyBaseCount(G.campaignIndex):1)+'</span>':'<b>'+STORY[G.stage][0]+'</b>'+(G.stage===2?MISSIONS[G.mission].description:STORY[G.stage][1]);let delivery=G.marketQueue[0];if(productionTab==='market')$('marketStatus').textContent=delivery?('ДОСТАВКА: '+UNIT[delivery.kind].name+' · '+(hasBuilding(0,'starport')?Math.max(0,Math.ceil(delivery.total-delivery.time))+' С':'ПАУЗА — НУЖЕН КОСМОПОРТ')+' · В ОЧЕРЕДИ '+G.marketQueue.length):'CHOAM · фиксированные цены · доставка 20 секунд';$('creditsValue').textContent=fmt(G.credits);$('energyValue').innerHTML=G.powerUse+' <small>/ '+G.powerMax+'</small>';$('energyValue').style.color=G.powerUse>G.powerMax?'#d0846a':'';$('armyValue').innerHTML=String(units.filter(u=>!u.owner&&!u.dead&&!u.ally).length).padStart(2,'0')+' <small>/ '+G.cap+'</small>';$('timeValue').textContent=timeFmt(G.time);
-if(cm){let goal=cm.quota||0,left=allEntities().filter(e=>e.owner===1).length,complete=campaignComplete();$('harvestObjective').style.display=goal?'':'none';$('harvestProgress').parentElement.style.display=goal?'':'none';$('baseObjective').style.display=goal?'none':'';$('harvestValue').textContent=fmt(Math.min(G.harvested-G.missionHarvestStart,goal))+' / '+fmt(goal);$('harvestProgress').style.width=goal?Math.min(100,(G.harvested-G.missionHarvestStart)/goal*100)+'%':'0%';$('harvestObjective').classList.toggle('done',complete);$('harvestObjective').querySelector('.check').textContent=complete?'✓':'';$('missionObjective').textContent='Уничтожить силы противника';$('baseValue').textContent=left+' осталось';$('baseObjective').classList.toggle('done',complete);$('baseObjective').querySelector('.check').textContent=complete?'✓':'';$('objectiveCount').textContent=(complete?'1':'0')+' / 1'}else{$('harvestObjective').style.display='';$('harvestProgress').parentElement.style.display='';$('baseObjective').style.display='';let goal=MISSIONS[G.mission].harvest,h=G.harvested>=goal,b=missionOtherDone();$('harvestValue').textContent=fmt(Math.min(G.harvested,goal))+' / '+fmt(goal);$('harvestProgress').style.width=Math.min(100,G.harvested/goal*100)+'%';$('harvestObjective').classList.toggle('done',h);$('harvestObjective').querySelector('.check').textContent=h?'✓':'';$('baseObjective').classList.toggle('done',b);$('baseObjective').querySelector('.check').textContent=b?'✓':'';let base=buildings.find(b=>b.id===G.enemyHQ);$('missionObjective').textContent=MISSIONS[G.mission].objective;$('baseValue').textContent=G.mission==='conquest'?(base?Math.ceil(base.hp/base.max*100)+'%':'ГОТОВО'):G.mission==='economy'?timeFmt(Math.min(G.time,240))+' / 04:00':(b?'ГОТОВО':Math.min(G.kills,12)+' / 12');$('objectiveCount').textContent=(Number(h)+Number(b))+' / 2';}
+if(cm){let goal=cm.quota||0,left=allEntities().filter(e=>e.owner===1).length,complete=campaignComplete();$('harvestObjective').style.display=goal?'':'none';$('harvestProgress').parentElement.style.display=goal?'':'none';$('baseObjective').style.display=goal?'none':'';$('harvestValue').textContent=fmt(Math.min(G.harvested-G.missionHarvestStart,goal))+' / '+fmt(goal);$('harvestProgress').style.width=goal?Math.min(100,(G.harvested-G.missionHarvestStart)/goal*100)+'%':'0%';$('harvestObjective').classList.toggle('done',complete);$('harvestObjective').querySelector('.check').textContent=complete?'✓':'';$('missionObjective').textContent='Уничтожить силы противника';$('baseValue').textContent=left+' осталось';$('baseObjective').classList.toggle('done',complete);$('baseObjective').querySelector('.check').textContent=complete?'✓':'';$('objectiveCount').textContent=(complete?'1':'0')+' / 1'}else{$('harvestObjective').style.display='';$('harvestProgress').parentElement.style.display='';$('baseObjective').style.display='';let goal=MISSIONS[G.mission].harvest,h=G.harvested>=goal,b=missionOtherDone();$('harvestValue').textContent=fmt(Math.min(G.harvested,goal))+' / '+fmt(goal);$('harvestProgress').style.width=Math.min(100,G.harvested/goal*100)+'%';$('harvestObjective').classList.toggle('done',h);$('harvestObjective').querySelector('.check').textContent=h?'✓':'';$('baseObjective').classList.toggle('done',b);$('baseObjective').querySelector('.check').textContent=b?'✓':'';let base=buildings.find(b=>b.id===G.enemyHQ&&!b.dead&&b.owner===1);$('missionObjective').textContent=MISSIONS[G.mission].objective;$('baseValue').textContent=G.mission==='conquest'?(base?Math.ceil(base.hp/base.max*100)+'%':'ГОТОВО'):G.mission==='economy'?timeFmt(Math.min(G.time,240))+' / 04:00':G.mission==='survival'?timeFmt(Math.min(G.time,300))+' / 05:00':(b?'ГОТОВО':Math.min(G.kills,12)+' / 12');$('objectiveCount').textContent=(Number(h)+Number(b))+' / 2';}
 if(G.queue.length){let q=G.queue[0];$('queueLabel').textContent=missingTech(0,q.kind).length?'ПАУЗА: '+techMessage(missingTech(0,q.kind)):(UNIT[q.kind].name.toUpperCase()+' · '+Math.ceil(q.total-q.time)+' С'+(G.queue.length>1?' +'+(G.queue.length-1):''));$('queueProgress').style.width=q.time/q.total*100+'%'}else{$('queueLabel').textContent=G.powerUse>G.powerMax?'ДЕФИЦИТ ЭНЕРГИИ':'ПРОИЗВОДСТВО ГОТОВО';$('queueProgress').style.width='0%'}
 $('waveLabel').textContent=G.state==='briefing'?'СЕКТОР ПОД НАБЛЮДЕНИЕМ':!buildings.some(x=>x.owner===1&&x.kind==='yard'&&!x.dead)?'ВРАЖЕСКИЕ БАЗЫ УНИЧТОЖЕНЫ':'ПОДКРЕПЛЕНИЕ · '+timeFmt(Math.max(0,G.nextWave-G.time));
+let hasPalace=hasBuilding(0,'palace');$('palaceHud').hidden=!hasPalace;
+if(hasPalace){$('thumperCd').textContent=G.thumperCd>0?Math.ceil(G.thumperCd)+' С':'ГОТОВ';$('thumperCd').style.color=G.thumperCd>0?'#d0846a':'#b6d28e';$('abilityThumper').disabled=G.thumperCd>0;$('fremenCd').textContent=G.fremenCd>0?Math.ceil(G.fremenCd)+' С':'ГОТОВ';$('fremenCd').style.color=G.fremenCd>0?'#d0846a':'#b6d28e';$('abilityFremen').disabled=G.fremenCd>0}
+$('weatherPill').hidden=!G.storm;if(G.storm){$('weatherPill').textContent=G.storm.phase==='warn'?'ПЕСЧАНАЯ БУРЯ · '+Math.ceil(7-G.storm.t)+' С':'ПЕСЧАНАЯ БУРЯ АКТИВНА'}
 document.querySelectorAll('.production-card[data-kind]').forEach(b=>{let isBuilding=productionTab==='buildings',isMarket=productionTab==='market',missing=isMarket?(!hasBuilding(0,'starport')?['starport']:[]):missingTech(0,b.dataset.kind,isBuilding),d=isBuilding?BUILD[b.dataset.kind]:UNIT[b.dataset.kind],price=isMarket?MARKET[b.dataset.kind]:isBuilding?d.price:unitCost(b.dataset.kind);b.classList.toggle('unaffordable',G.credits<price||missing.length>0);b.title=d.name+' · '+(missing.length?techMessage(missing):'Технология доступна')});
 updateSelectionHealth();renderMinimap();
 }
 function renderMinimap(){
 let w=mini.width,h=mini.height;mc.clearRect(0,0,w,h);mc.drawImage(terrain,0,0,w,h);rect(mc,0,0,w,h,'#1d2d22a8');
 mc.strokeStyle='#b7c99516';mc.lineWidth=1;for(let x=0;x<w;x+=w/8){line(mc,x,0,x,h,'#b7c99516')}for(let y=0;y<h;y+=h/5)line(mc,0,y,w,y,'#b7c99516');
+for(let sp of (G.extraSpice||[]))ellipse(mc,sp.x/WW*w,sp.y/WH*h,5,3.5,'#d49048');
+for(let bl of (G.blooms||[]))ellipse(mc,bl.x/WW*w,bl.y/WH*h,3,3,'#ffba59');
 for(let b of buildings){if(b.dead)continue;rect(mc,b.x/WW*w-4,b.y/WH*h-3,8,6,b.owner?'#e29173':'#c4dc9a')}
-for(let u of units){if(u.dead)continue;ellipse(mc,u.x/WW*w,u.y/WH*h,2.4,2.4,u.owner?'#e07f60':u.ally?'#86e0dd':'#c2dba0')}
+for(let u of units){if(u.dead||(u.owner===1&&!isVisibleTo(u,0)))continue;ellipse(mc,u.x/WW*w,u.y/WH*h,2.4,2.4,u.owner?'#e07f60':u.ally?'#86e0dd':'#c2dba0')}
+if(G.storm)rect(mc,(G.storm.x-G.storm.w/2)/WW*w,0,G.storm.w/WW*w,h,G.storm.phase==='warn'?'#e8b46e22':'#e8b46e48');
 let vw=Math.min(WW,CW/scale),vh=Math.min(WH,CH/scale);mc.strokeStyle='#dce3bc99';mc.lineWidth=1.5;mc.strokeRect((camera.x-vw/2)/WW*w,(camera.y-vh/2)/WH*h,vw/WW*w,vh/WH*h);
 let sy=(performance.now()*.022)%h;let g=mc.createLinearGradient(0,sy-25,0,sy);g.addColorStop(0,'#a9c88100');g.addColorStop(1,'#a9c88113');rect(mc,0,sy-25,w,25,g);line(mc,0,sy,w,sy,'#c5e19a20');
 }
@@ -733,29 +947,46 @@ const r=u.building?Math.max(BUILD[u.kind].w,BUILD[u.kind].h)*.7:UNIT[u.kind].gro
 c.save();c.strokeStyle='#d5e7a4';c.lineWidth=1.7;c.globalAlpha=.85;
 if(u.building){let w=BUILD[u.kind].w+19,h=BUILD[u.kind].h+23;for(let x of [-1,1])for(let y of [-1,1]){c.beginPath();c.moveTo(u.x+x*w/2,u.y+y*h/2-y*12);c.lineTo(u.x+x*w/2,u.y+y*h/2);c.lineTo(u.x+x*w/2-x*12,u.y+y*h/2);c.stroke()}}
 else{c.beginPath();c.ellipse(u.x,u.y+3,r,r*.67,0,0,Math.PI*2);c.stroke();c.globalAlpha=.12;ellipse(c,u.x,u.y+3,r,r*.67,'#d9e9a1');}
+if(!u.building&&UNIT[u.kind]?.healRadius){c.globalAlpha=.22;c.strokeStyle='#a8e8aa';c.setLineDash([6,6]);c.beginPath();c.arc(u.x,u.y,UNIT[u.kind].healRadius,0,Math.PI*2);c.stroke()}
 c.restore();drawHealth(c,u);
 }
 function label(c,text,x,y,color){c.font='9px "IBM Plex Mono", monospace';c.textAlign='center';let w=c.measureText(text).width+18;rect(c,x-w/2,y-12,w,20,'#252d20c2');c.fillStyle=color;c.fillText(text,x,y+1);c.textAlign='start'}
 function render(t){
 ctx.setTransform(DPR,0,0,DPR,0,0);ctx.clearRect(0,0,CW,CH);ctx.fillStyle='#9e8557';ctx.fillRect(0,0,CW,CH);
 ctx.save();ctx.translate(CW/2,CH/2);ctx.scale(scale,scale);ctx.translate(-camera.x,-camera.y);ctx.drawImage(terrain,0,0);
+for(let p of (G.extraSpice||[])){ctx.save();ctx.translate(p.x,p.y);const g=ctx.createRadialGradient(0,0,10,0,0,p.rx);g.addColorStop(0,'#c6732ecc');g.addColorStop(.7,'#bc773366');g.addColorStop(1,'#b6793000');ctx.scale(1,p.ry/p.rx);ellipse(ctx,0,0,p.rx,p.rx,g);ctx.restore()}
 ctx.save();ctx.globalAlpha=.09;ctx.strokeStyle='#e6d6a3';ctx.lineWidth=.6;for(let x=0;x<=WW;x+=200){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,WH);ctx.stroke()}for(let y=0;y<=WH;y+=200){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(WW,y);ctx.stroke()}ctx.restore();
 let sel=getSelected();
 for(let u of sel){
-if(u.move||u.order==='harvest'){let dest=u.move|| (u.harvestState==='return'?buildings.find(b=>b.owner===u.owner&&b.kind==='refinery'):spicePatches[u.spiceIndex]);if(dest){ctx.save();ctx.strokeStyle='#e4dc9e88';ctx.lineWidth=1.5;ctx.setLineDash([5,8]);ctx.lineDashOffset=-t*9;ctx.beginPath();ctx.moveTo(u.x,u.y);ctx.lineTo(dest.x,dest.y);ctx.stroke();ctx.restore()}}
+if(u.move||u.order==='harvest'){const sp=allSpicePatches();let dest=u.move||(u.harvestState==='return'?buildings.find(b=>b.owner===u.owner&&b.kind==='refinery'):sp[u.spiceIndex]);if(dest){ctx.save();ctx.strokeStyle='#e4dc9e88';ctx.lineWidth=1.5;ctx.setLineDash([5,8]);ctx.lineDashOffset=-t*9;ctx.beginPath();ctx.moveTo(u.x,u.y);ctx.lineTo(dest.x,dest.y);ctx.stroke();ctx.restore()}}
 }
-buildings.slice().sort((a,b)=>a.y-b.y).forEach(b=>{if(selected.includes(b.id))drawSelection(ctx,b,t);if((b.emerge??1)<1){let d=BUILD[b.kind],v=b.emerge;ellipse(ctx,b.x,b.y+d.h*.4,d.w*.75,d.h*.28,'#a6754677');ctx.save();ctx.beginPath();ctx.rect(b.x-d.w/2-20,b.y+d.h/2-(d.h+35)*v,d.w+40,(d.h+35)*v);ctx.clip();drawBuilding(ctx,b,t);ctx.restore();for(let i=0;i<5;i++)ellipse(ctx,b.x+Math.sin(t*3+i*8)*d.w*.45,b.y+d.h*.42,5+i*2,3+i,'#dec39566')}else drawBuilding(ctx,b,t);if((b.emerge??1)>=1&&b.hp<b.max&&!selected.includes(b.id))drawHealth(ctx,b);if(b.build<1){rect(ctx,b.x-30,b.y+BUILD[b.kind].h/2+17,60,4,'#303b25');rect(ctx,b.x-30,b.y+BUILD[b.kind].h/2+17,b.build*60,4,'#d9ce94')}});
-label(ctx,'БАЗА АТРЕЙДЕСОВ',345,395,'#d6e3b6');for(const b of buildings.filter(b=>b.owner===1&&b.kind==='yard'&&!b.dead))label(ctx,(b.houseLabel||'ВРАГ').toUpperCase(),b.x,b.y-128,'#edb29a');
-for(let p of spicePatches){ctx.fillStyle='#e7c77c66';for(let i=0;i<5;i++){let a=t*.15+i*4.13;ellipse(ctx,p.x+Math.sin(i*35)*p.rx*.65,p.y+Math.cos(i*21)*p.ry*.6,Math.max(.2,Math.sin(t*2+i)*1.3),1,'#f4d58e88')}}
-units.slice().sort((a,b)=>(UNIT[a.kind].group==='air'?2000:0)+a.y-((UNIT[b.kind].group==='air'?2000:0)+b.y)).forEach(u=>{if(selected.includes(u.id))drawSelection(ctx,u,t);drawUnit(ctx,u,t);if(u.ally)label(ctx,u.allyName.toUpperCase()+' · СОЮЗНИКИ',u.x,u.y-37,'#a9e1d0');if(u.kind==='emperor')label(ctx,'ИМПЕРАТОР',u.x,u.y-67,'#ffe099');if(u.hp<u.max&&!selected.includes(u.id))drawHealth(ctx,u);if(u.repair){ctx.fillStyle='#d5e9a6';ctx.font='16px monospace';ctx.fillText('+',u.x+20,u.y-20-Math.sin(t*3)*4)}});
-for(let p of projectiles){ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.angle||0);if(p.kind==='sonic'){ctx.strokeStyle='#b3ebca';ctx.lineWidth=3;for(let j=0;j<3;j++){ctx.beginPath();ctx.arc(-j*9,0,15+j*3,-.8,.8);ctx.stroke()}}else{line(ctx,-12,0,5,0,p.kind==='rocket'?'#e9b06c':'#f3e6af',p.kind==='rocket'?3:2);ellipse(ctx,5,0,3,2,'#fff1c3')}ctx.restore()}
+buildings.slice().sort((a,b)=>a.y-b.y).forEach(b=>{if(selected.includes(b.id))drawSelection(ctx,b,t);if((b.emerge??1)<1){let d=BUILD[b.kind],v=b.emerge;ellipse(ctx,b.x,b.y+d.h*.4,d.w*.75,d.h*.28,'#a6754677');ctx.save();ctx.beginPath();ctx.rect(b.x-d.w/2-20,b.y+d.h/2-(d.h+35)*v,d.w+40,(d.h+35)*v);ctx.clip();drawBuilding(ctx,b,t);ctx.restore();for(let i=0;i<5;i++)ellipse(ctx,b.x+Math.sin(t*3+i*8)*d.w*.45,b.y+d.h*.42,5+i*2,3+i,'#dec39566')}else drawBuilding(ctx,b,t);if((b.emerge??1)>=1&&b.hp<b.max&&!selected.includes(b.id))drawHealth(ctx,b);if(b.burn>0){for(let f=0;f<3;f++)ellipse(ctx,b.x-14+f*14,b.y-10-Math.abs(Math.sin(t*7+f))*16,5,8,'#ef8f3ca8')}if(b.build<1){rect(ctx,b.x-30,b.y+BUILD[b.kind].h/2+17,60,4,'#303b25');rect(ctx,b.x-30,b.y+BUILD[b.kind].h/2+17,b.build*60,4,'#d9ce94')}});
+for(const b of buildings.filter(b=>b.owner===0&&b.kind==='yard'&&!b.dead))label(ctx,'БАЗА АТРЕЙДЕСОВ',b.x,b.y-66,'#d6e3b6');
+for(const b of buildings.filter(b=>b.owner===1&&b.kind==='yard'&&!b.dead))label(ctx,(b.houseLabel||'ВРАГ').toUpperCase(),b.x,b.y-128,'#edb29a');
+for(let p of allSpicePatches()){ctx.fillStyle='#e7c77c66';for(let i=0;i<5;i++){ellipse(ctx,p.x+Math.sin(i*35)*p.rx*.65,p.y+Math.cos(i*21)*p.ry*.6,Math.max(.2,Math.sin(t*2+i)*1.3),1,'#f4d58e88')}}
+for(let bl of (G.blooms||[])){let r=16+Math.sin(t*5)*3;ellipse(ctx,bl.x,bl.y,r*1.2,r*.8,'#d17d3555');ellipse(ctx,bl.x,bl.y,r*.7,r*.5,'#f3ae55cc');label(ctx,'СПАЙС-ГЕЙЗЕР',bl.x,bl.y-24,'#f8cb7e')}
+units.slice().sort((a,b)=>(UNIT[a.kind].group==='air'?2000:0)+a.y-((UNIT[b.kind].group==='air'?2000:0)+b.y)).forEach(u=>{
+if(u.owner===1&&!isVisibleTo(u,0))return;
+if(selected.includes(u.id))drawSelection(ctx,u,t);
+drawUnit(ctx,u,t);
+if(u.deviatedTimer>0){ctx.save();ctx.strokeStyle='#b882eb';ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(u.x,u.y,25,17,0,0,Math.PI*2);ctx.stroke();ctx.restore()}
+if(u.burn>0){ellipse(ctx,u.x+Math.sin(t*9)*4,u.y-10-Math.abs(Math.cos(t*7))*8,6,9,'#f08d38b5')}
+if(u.rank>0){ctx.fillStyle='#ffd875';ctx.font='10px monospace';ctx.textAlign='center';ctx.fillText('★'.repeat(u.rank),u.x,u.y-(u.kind==='emperor'?58:32));ctx.textAlign='start'}
+if(u.ally)label(ctx,u.allyName.toUpperCase()+' · СОЮЗНИКИ',u.x,u.y-37,'#a9e1d0');
+if(u.kind==='emperor')label(ctx,'ИМПЕРАТОР',u.x,u.y-67,'#ffe099');
+if(u.hp<u.max&&!selected.includes(u.id))drawHealth(ctx,u);
+if(u.repair){ctx.fillStyle='#d5e9a6';ctx.font='16px monospace';ctx.fillText('+',u.x+20,u.y-20-Math.sin(t*3)*4)}
+});
+for(let p of projectiles){ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.angle||0);if(p.kind==='sonic'){ctx.strokeStyle='#b3ebca';ctx.lineWidth=3;for(let j=0;j<3;j++){ctx.beginPath();ctx.arc(-j*9,0,15+j*3,-.8,.8);ctx.stroke()}}else if(p.kind==='flame'){ellipse(ctx,0,0,7,4,'#f59138');ellipse(ctx,3,0,4,2.5,'#ffe18c')}else if(p.kind==='laser'){line(ctx,-16,0,6,0,'#76f4dc',2.5);ellipse(ctx,6,0,3,2,'#ffffff')}else if(p.kind==='flak'){line(ctx,-9,0,4,0,'#f8d382',2);ellipse(ctx,4,0,3,3,'#fff4be')}else if(p.kind==='deviator'){line(ctx,-11,0,5,0,'#b586ea',3);ellipse(ctx,5,0,3.5,2.5,'#e2bfff')}else if(p.kind==='bomb'){ellipse(ctx,0,0,5,3,'#4b5340');ellipse(ctx,-5,0,3,2,'#ef9e52')}else{line(ctx,-12,0,5,0,p.kind==='rocket'?'#e9b06c':'#f3e6af',p.kind==='rocket'?3:2);ellipse(ctx,5,0,3,2,'#fff1c3')}ctx.restore()}
 for(let e of effects){let p=1-e.life/e.max;ctx.save();ctx.globalAlpha=Math.min(1,e.life/e.max*2);
 if(e.type==='explosion'){ellipse(ctx,e.x+7,e.y+10,Math.max(1,p*e.size*1.2),Math.max(1,p*e.size*.7),'#66543a66');for(let i=0;i<9;i++){let a=i*2.399,r=e.size*p*.8;ellipse(ctx,e.x+Math.cos(a)*r,e.y+Math.sin(a)*r*.7,Math.max(1,(1-p)*e.size*.35),Math.max(1,(1-p)*e.size*.3),i%2?'#b37f3c':'#e3b267')}ellipse(ctx,e.x,e.y,Math.max(1,e.size*(1-p)*.4),Math.max(1,e.size*(1-p)*.3),'#ffe3a5')}
 else if(e.type==='muzzle'||e.type==='hit'){ellipse(ctx,e.x,e.y,4+p*9,4+p*9,'#f5dc9a');line(ctx,e.x-11,e.y,e.x+11,e.y,'#f5dc9a');line(ctx,e.x,e.y-11,e.x,e.y+11,'#f5dc9a')}
 else if(e.type==='order'||e.type==='sonic'){ctx.strokeStyle=e.color||'#a3e4bd';ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(e.x,e.y,12+p*28,(12+p*28)*.65,0,0,Math.PI*2);ctx.stroke();if(e.type==='order'){line(ctx,e.x-5,e.y,e.x+5,e.y,e.color);line(ctx,e.x,e.y-5,e.x,e.y+5,e.color)}}
 else if(e.type==='text'){ctx.font='bold 17px "IBM Plex Mono",monospace';ctx.textAlign='center';ctx.fillStyle='#e8dfa1';ctx.shadowColor='#303b1c';ctx.shadowBlur=5;ctx.fillText(e.text,e.x,e.y-p*35)}
 ctx.restore()}
-if(G.worm){let w=G.worm;if(w.t<7){ctx.save();ctx.strokeStyle='#e3bb7c';ctx.lineWidth=2;ctx.setLineDash([7,7]);ctx.beginPath();ctx.ellipse(w.x,w.y,80+Math.sin(t*6)*5,55+Math.sin(t*6)*3,0,0,Math.PI*2);ctx.stroke();ctx.restore();label(ctx,'СЕЙСМИЧЕСКАЯ АКТИВНОСТЬ · '+Math.ceil(7-w.t),w.x,w.y-75,'#f5c894')}else{ctx.save();ctx.translate(w.x,w.y);ctx.scale(1.8,1.8);drawUnit(ctx,{kind:'worm',x:0,y:0,owner:1},t);ctx.restore()}}
+if(G.worm){let w=G.worm;if(w.t<7){ctx.save();ctx.strokeStyle='#e3bb7c';ctx.lineWidth=2;ctx.setLineDash([7,7]);ctx.beginPath();ctx.ellipse(w.x,w.y,(w.radius||80)+Math.sin(t*6)*5,(w.radius||80)*.68+Math.sin(t*6)*3,0,0,Math.PI*2);ctx.stroke();ctx.restore();label(ctx,(w.thumper?'МАНОК ЧЕРВЯ · ':'СЕЙСМИЧЕСКАЯ АКТИВНОСТЬ · ')+Math.ceil(7-w.t),w.x,w.y-75,'#f5c894')}else{ctx.save();ctx.translate(w.x,w.y);ctx.scale(1.8,1.8);drawUnit(ctx,{kind:'worm',x:0,y:0,owner:1},t);ctx.restore()}}
+if(G.storm){let s=G.storm;ctx.save();if(s.phase==='warn'){ctx.strokeStyle='#f0b96b88';ctx.lineWidth=2;ctx.setLineDash([10,10]);ctx.strokeRect(s.x-s.w/2,0,s.w,WH)}else{let g=ctx.createLinearGradient(s.x-s.w/2,0,s.x+s.w/2,0);g.addColorStop(0,'#d49b5700');g.addColorStop(.5,'#d49b5766');g.addColorStop(1,'#d49b5700');ctx.fillStyle=g;ctx.fillRect(s.x-s.w/2,0,s.w,WH);for(let i=0;i<28;i++){let sx=s.x-s.w/2+(i*37+t*190)%s.w,sy=(i*117+t*140)%WH;line(ctx,sx,sy,sx+45,sy-18,'#f7d19755',1.5)}}ctx.restore()}
+if(mode==='thumper'||mode==='fremen'){ctx.save();ctx.strokeStyle=mode==='thumper'?'#f3c572':'#9ae3c8';ctx.lineWidth=2;ctx.setLineDash([6,6]);ctx.beginPath();ctx.arc(mouse.x,mouse.y,mode==='thumper'?95:55,0,Math.PI*2);ctx.stroke();ctx.restore()}
 if(placement){let ok=validBuild(mouse,placement);ctx.save();ctx.globalAlpha=.6;drawBuilding(ctx,{kind:placement,x:mouse.x,y:mouse.y,owner:ok?0:1,build:.5},t);ctx.strokeStyle=ok?'#d4e99f':'#ed9371';ctx.lineWidth=2;let d=BUILD[placement];ctx.strokeRect(mouse.x-d.w/2-12,mouse.y-d.h/2-12,d.w+24,d.h+24);ctx.restore()}
 for(let i=0;i<32;i++){let x=(i*111.3+t*(4+i%3))%WW,y=(i*173.9+Math.sin(t*.2+i)*12)%WH;line(ctx,x,y,x+18+i%15,y-5,'#f9dfad16',1)}
 ctx.restore();
@@ -776,10 +1007,11 @@ function unpackSnapshot(snapshot){
  if(!Object.hasOwn(MISSIONS,snapshot.G.mission)&&snapshot.G.mission!=='campaign')throw Error('invalid mission');
  if(snapshot.G.mission==='campaign'&&(!Number.isInteger(snapshot.G.campaignIndex)||!CAMPAIGN[snapshot.G.campaignIndex]))throw Error('invalid campaign');
  if(snapshot.units.some(u=>!UNIT[u.kind])||snapshot.buildings.some(b=>!BUILD[b.kind]))throw Error('invalid entity');
+ snapshot.G.extraSpice??=[];snapshot.G.blooms??=[];snapshot.G.thumperCd??=0;snapshot.G.fremenCd??=0;snapshot.G.nextBloom??=snapshot.G.time+26;snapshot.G.nextStorm??=snapshot.G.time+60;
  let entities=new Map([...snapshot.units,...snapshot.buildings].map(e=>[e.id,e]));
  for(const e of [...snapshot.units,...snapshot.buildings])e.target=entities.get(e.target)||null;
- snapshot.projectiles=snapshot.projectiles.filter(p=>entities.has(p.target));
- for(const p of snapshot.projectiles)p.target=entities.get(p.target);
+ snapshot.projectiles=snapshot.projectiles.filter(p=>p.kind==='bomb'||entities.has(p.target));
+ for(const p of snapshot.projectiles)p.target=entities.get(p.target)||null;
  return snapshot;
 }
 function saveRemaster(){
